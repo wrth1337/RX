@@ -83,7 +83,6 @@ public class Lexer {
         }
     }
 
-    // maybe useful for later implementations...
     private char peekChar() {
         if (position < code.length()) {
             return code.charAt(position);
