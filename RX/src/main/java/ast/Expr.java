@@ -1,4 +1,4 @@
 package ast;
 
-public interface Expr {
+public sealed interface Expr extends TopLevelItem permits Call, BinaryOp, Literal, Var {
 }
