@@ -1,9 +1,12 @@
+// Control-Structures
 def if(true, thenBranch, elseBranch) = thenBranch
 def if(false, thenBranch, elseBranch) = elseBranch
 
 def max(a, b) = if(a > b, a, b)
 def min(a, b) = if(a < b, a, b)
 
+
+//Advanced mathematical operations
 def square(x) = x * x
 
 def fact(0) = 1
@@ -12,6 +15,8 @@ def fact(n) = n * fact(n - 1)
 def fib(0) = 0
 def fib(1) = 1
 def fib(n) = fib(n - 1) + fib(n - 2)
+
+
 
 def abs(x) = if(x < 0, 0 - x, x)
 

@@ -9,11 +9,11 @@ public class Lexer {
 
     public Lexer(String code) {
         this.code = code;
-        this.currentChar = readChar();
+        nextChar();
     }
 
     public Token nextToken() {
-        skipWhitespace();
+        skipWhitespaceAndComments();
 
         if (currentChar == EOF) {
             return new Token(TokenType.EOF, "EOF");
@@ -97,9 +97,29 @@ public class Lexer {
         return new Token(TokenType.ERROR, String.valueOf(unknown));
     }
 
-    private void skipWhitespace() {
-        while (Character.isWhitespace(currentChar)) {
-            nextChar();
+    private void skipWhitespaceAndComments() {
+        boolean skipping = true;
+
+        while (skipping) {
+            skipping = false;
+
+            //Whitespace
+            while (Character.isWhitespace(currentChar)) {
+                nextChar();
+                skipping = true;
+            }
+
+            //Comments
+            if (currentChar == '/' && peekChar() == '/') {
+                nextChar();
+                nextChar();
+
+                while (currentChar != '\n' && currentChar != EOF) {
+                    nextChar();
+                }
+
+                skipping = true;
+            }
         }
     }
 
@@ -116,14 +136,6 @@ public class Lexer {
             return code.charAt(position);
         }
         return EOF;
-    }
-
-    private char readChar() {
-        if (position < code.length()) {
-            return code.charAt(position++);
-        } else {
-            return EOF;
-        }
     }
 
     private String readIntLiteral() {

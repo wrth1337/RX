@@ -15,7 +15,11 @@ public class Main {
         //TODO: code should be read from a file -> args...
         //TODO: Add more args/flags such as verbose mode, debug mode, repl(?) etc...
         String code = """
-        fact(12)
+        //TestComment
+        5+5*2 // Testcomment
+        12-2
+        //Testcomment     Textcomment
+        10-5             // Test             Comment
         """;
 
 
