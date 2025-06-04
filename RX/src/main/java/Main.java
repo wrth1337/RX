@@ -12,26 +12,34 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        //TODO: code should be read from a file -> args...
         //TODO: Add more args/flags such as verbose mode, debug mode, repl(?) etc...
-        String code = """
-        //TestComment
-        5+5*2 // Testcomment
-        12-2
-        //Testcomment     Textcomment
-        10-5             // Test             Comment
-        """;
+        if(args.length < 1) {
+            System.err.println("Filename must be provided as first argument");
+            System.exit(1);
+        }
+
+        String filename = args[0];
+
+        if (!filename.endsWith(".rx")) {
+            System.err.println("Error: input file must have a .rx extension");
+            System.exit(1);
+        }
+
+        String code = "";
+
+        try {
+            code = Files.readString(Path.of(filename));
+        } catch (IOException e) {
+            System.err.printf("Error reading file: %s%n", filename);
+            System.exit(1);
+        }
 
 
         String preludeCode = Files.readString(Path.of("src/main/resources/rx_prelude.rx"));
         String fullCode = preludeCode + "\n" + code;
 
-
-
         Parser parser = new Parser(new Lexer(fullCode));
         List<TopLevelItem> items = parser.parse();
-
-
 
         List<Rule> rules = new ArrayList<>();
         List<Expr> expressions = new ArrayList<>();
@@ -46,21 +54,26 @@ public class Main {
         RewriteEngine engine = new RewriteEngine(rules);
         Evaluator evaluator = new Evaluator(engine);
 
-        Path outputDir = Path.of("out");
-        Files.createDirectories(outputDir);
+        StringBuilder outputBuilder = new StringBuilder();
 
-        //TODO: Output should be written to a single file, not multiple files...
-        //Easier for debugging for now... maybe an extra flag later?
         for (int i = 0; i < expressions.size(); i++) {
             Expr original = expressions.get(i);
             Expr result = evaluator.evaluate(original);
 
-            System.out.println("Expression " + (i + 1) + ":\n" + result.toString());
-
-            Path outFile = outputDir.resolve("result_" + (i + 1) + ".rx");
-            Files.writeString(outFile, result.toString());
+            outputBuilder
+                    .append("// Expression ").append(i + 1).append(":\n")
+                    .append(result.toString()).append("\n\n");
         }
 
-        System.out.println("Program successfully rewritten");
+        String outputFilename = filename.replaceAll("\\.rx$", "_output.rx");
+
+        Path outputDir = Path.of("out");
+        Files.createDirectories(outputDir);
+
+        Path outFile = outputDir.resolve(Path.of(outputFilename).getFileName());
+        Files.writeString(outFile, outputBuilder.toString());
+
+        System.out.println("All expressions written to: " + outFile);
+        System.out.println("Program successfully rewritten.");
     }
 }
