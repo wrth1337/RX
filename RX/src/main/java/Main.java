@@ -61,7 +61,7 @@ public class Main {
             Expr result = evaluator.evaluate(original);
 
             outputBuilder
-                    .append("// Expression ").append(i + 1).append(":\n")
+                    .append("// Expression ").append(i + 1).append(" - ").append(original).append(":\n")
                     .append(result.toString()).append("\n\n");
         }
 
