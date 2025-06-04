@@ -86,8 +86,15 @@ def clamp(x, minVal, maxVal) = max(min(x, maxVal), minVal)
 def isZero(x) = x == 0
 def isPositive(x) = x > 0
 def isNegative(x) = x < 0
-
 ```
+
+## Planned or possible extensions
+- Strings, floats, and more data types
+- Interactive REPL
+- Input/output primitives (with controlled side effects)
+- Type system or type hints
+- Rewriting traces and visual debugging tools
+- Modules and imports for larger programs
 
 ## Notes
 Currently, arithmetic and comparison operators are evaluated natively in Java, not via rewrite rules. Replacing this with a fully rule-based system is a possible future direction.
