@@ -15,7 +15,6 @@ public class Lexer {
     public Token nextToken() {
         skipWhitespace();
 
-        // EOF
         if (currentChar == EOF) {
             return new Token(TokenType.EOF, "EOF");
         }
@@ -23,6 +22,7 @@ public class Lexer {
         switch (currentChar) {
             case '+': nextChar(); return new Token(TokenType.PLUS, "+");
             case '-': {
+                //TODO: maybe useful for later... maybe not...
                 if (peekChar() == '>') {
                     nextChar(); nextChar();
                     return new Token(TokenType.ARROW, "->");
@@ -45,6 +45,34 @@ public class Lexer {
                     return new Token(TokenType.ASSIGN, "=");
                 }
             }
+            case '!': {
+                nextChar();
+                if (currentChar == '=') {
+                    nextChar();
+                    return new Token(TokenType.NQ, "!=");
+                } else {
+                    return new Token(TokenType.ERROR, "!");
+                }
+            }
+            case '<': {
+                nextChar();
+                if (currentChar == '=') {
+                    nextChar();
+                    return new Token(TokenType.LE, "<=");
+                } else {
+                    return new Token(TokenType.LT, "<");
+                }
+            }
+            case '>': {
+                nextChar();
+                if (currentChar == '=') {
+                    nextChar();
+                    return new Token(TokenType.GE, ">=");
+                } else {
+                    return new Token(TokenType.GT, ">");
+                }
+            }
+
         }
 
         // Int Literal

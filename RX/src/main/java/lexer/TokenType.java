@@ -12,6 +12,11 @@ public enum TokenType {
 
     //Bool Stuff
     EQ("=="),
+    GE (">="),
+    LE ("<="),
+    GT (">"),
+    LT ("<"),
+    NQ ("!="),
 
     LPAREN("("),
     RPAREN(")"),
