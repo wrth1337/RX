@@ -12,14 +12,31 @@ public class Evaluator {
         this.engine = engine;
     }
 
-    //TODO: Temporary evaluate-method
     public Expr evaluate(Expr expr) {
-        if (expr instanceof App app) {
-            List<Expr> reducedArgs = app.arguments().stream()
+        if (expr instanceof BinaryOp bin) {
+            String fname = switch (bin.op()) {
+                case ADD -> "add";
+                case SUB -> "sub";
+                case MUL -> "mul";
+                case DIV -> "div";
+                case EQ  -> "eq";
+                case LT  -> "lt";
+                case NQ -> "nq";
+                case GT  -> "gt";
+                case LE  -> "le";
+                case GE  -> "ge";
+            };
+            Expr left = evaluate(bin.left());
+            Expr right = evaluate(bin.right());
+            return evaluate(new Call(fname, List.of(left, right)));
+        }
+
+        if (expr instanceof Call call) {
+            List<Expr> reducedArgs = call.arguments().stream()
                     .map(this::evaluate)
                     .toList();
-            App reducedApp = new App(app.function(), reducedArgs);
-            Expr rewritten = engine.rewrite(reducedApp);
+            Call reducedCall = new Call(call.function(), reducedArgs);
+            Expr rewritten = engine.rewrite(reducedCall);
             if (!rewritten.equals(expr)) {
                 return evaluate(rewritten);
             }

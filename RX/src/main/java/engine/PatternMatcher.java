@@ -1,23 +1,43 @@
 package engine;
 
 import ast.*;
-import rules.Pattern;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import ast.Pattern;
+import java.util.*;
 
 public class PatternMatcher {
-    public Optional<Map<String, Expr>> match(App expr, Pattern pattern) {
+
+    public Optional<Map<String, Expr>> match(Call expr, Pattern pattern) {
         if (!expr.function().equals(pattern.name())) return Optional.empty();
-        if (expr.arguments().size() != pattern.parameters().size()) return Optional.empty();
+        if (expr.arguments().size() != pattern.arguments().size()) return Optional.empty();
 
         Map<String, Expr> bindings = new HashMap<>();
-        for (int i = 0; i < pattern.parameters().size(); i++) {
-            bindings.put(pattern.parameters().get(i), expr.arguments().get(i));
+        for (int i = 0; i < pattern.arguments().size(); i++) {
+            PatternArg patArg = pattern.arguments().get(i);
+            Expr exprArg = expr.arguments().get(i);
+
+            if (!matchArg(patArg, exprArg, bindings)) {
+                return Optional.empty();
+            }
         }
-//        System.out.println("Matched: " + expr + " with " + pattern);
-//        System.out.println("Bindings: " + bindings);
+
         return Optional.of(bindings);
+    }
+
+    private boolean matchArg(PatternArg patArg, Expr expr, Map<String, Expr> bindings) {
+        if (patArg instanceof PatternVar var) {
+            String name = var.name();
+            if (bindings.containsKey(name)) {
+                return bindings.get(name).equals(expr);
+            } else {
+                bindings.put(name, expr);
+                return true;
+            }
+        } else if (patArg instanceof PatternLiteral lit) {
+            return lit.value().equals(expr);
+        } else if (patArg instanceof PatternExpr patExpr) {
+            return patExpr.expr().equals(expr);
+        }
+
+        return false;
     }
 }
