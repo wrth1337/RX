@@ -13,6 +13,11 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException {
         //TODO: Add more args/flags such as verbose mode, debug mode, repl(?) etc...
+        //TODO: Metaprogramming -> Rules can have Rules as parameters -> OOP?
+        //https://www.researchgate.net/scientific-contributions/Tim-Reichert-69812364
+
+        //TODO: Errorhandling
+
         if(args.length < 1) {
             System.err.println("Filename must be provided as first argument");
             System.exit(1);
