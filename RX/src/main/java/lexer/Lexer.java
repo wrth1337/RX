@@ -75,9 +75,9 @@ public class Lexer {
 
         }
 
-        // Int Literal
-        if (Character.isDigit(currentChar)) {
-            return new Token(TokenType.INT_LITERAL, readIntLiteral());
+        // Number Literal (Int or Float)
+        if (Character.isDigit(currentChar) || (currentChar == '.' && Character.isDigit(peekChar()))) {
+            return readNumberLiteral();
         }
 
         // Identifier
@@ -138,15 +138,6 @@ public class Lexer {
         return EOF;
     }
 
-    private String readIntLiteral() {
-        StringBuilder sb = new StringBuilder();
-        while (Character.isDigit(currentChar)) {
-            sb.append(currentChar);
-            nextChar();
-        }
-        return sb.toString();
-    }
-
     private String readIdentifier() {
         StringBuilder sb = new StringBuilder();
         while (Character.isLetterOrDigit(currentChar)) {
@@ -154,5 +145,47 @@ public class Lexer {
             nextChar();
         }
         return sb.toString();
+    }
+
+    private Token readNumberLiteral() {
+        StringBuilder sb = new StringBuilder();
+        boolean seenDot = false;
+
+        // Leading dot: .1337 -> 0.1337
+        if (currentChar == '.') {
+            seenDot = true;
+            sb.append('0');
+            sb.append(currentChar);
+            nextChar();
+        }
+
+        while (Character.isDigit(currentChar)) {
+            sb.append(currentChar);
+            nextChar();
+        }
+
+        if (currentChar == '.') {
+            if(seenDot) {
+                return new Token(TokenType.ERROR, "Invalid float literal");
+            }
+
+            seenDot = true;
+            sb.append(currentChar);
+            nextChar();
+
+            if (!Character.isDigit(currentChar)) {
+                return new Token(TokenType.ERROR, "Expected digits after decimal point");
+            }
+
+            while (Character.isDigit(currentChar)) {
+                sb.append(currentChar);
+                nextChar();
+            }
+        }
+
+        return new Token(
+                seenDot ? TokenType.FLOAT_LITERAL : TokenType.INT_LITERAL,
+                sb.toString()
+        );
     }
 }
