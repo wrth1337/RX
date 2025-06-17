@@ -90,8 +90,8 @@ def isNegative(x) = x < 0
 ```
 
 ## Planned or possible extensions
-- Strings, floats, and more data types
-- Interactive REPL
+- let bindings
+- Strings and more data types
 - Input/output primitives (with controlled side effects)
 - Type system or type hints
 - Rewriting traces and visual debugging tools
