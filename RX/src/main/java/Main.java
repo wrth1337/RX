@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -19,12 +20,35 @@ public class Main {
         //TODO: Errorhandling
 
         if(args.length < 1) {
-            System.err.println("Filename must be provided as first argument");
+            System.err.println("Usage: rx [-i <file> | -r]");
             System.exit(1);
         }
 
-        String filename = args[0];
+        String mode = args[0];
 
+        switch (mode) {
+            case "-i":
+                if (args.length < 2) {
+                    System.err.println("Usage: rx -i <file>");
+                    System.exit(1);
+                }
+                String filename = args[1];
+                interpret(filename);
+                break;
+            case "-r":
+                if (args.length > 1) {
+                    System.err.println("Usage: rx -r");
+                    System.exit(1);
+                }
+                repl();
+                break;
+            default:
+                System.err.println("Usage: rx [-i <file> | -r]");
+                System.exit(1);
+        }
+    }
+
+    private static void interpret(String filename) throws IOException {
         if (!filename.endsWith(".rx")) {
             System.err.println("Error: input file must have a .rx extension");
             System.exit(1);
@@ -80,5 +104,100 @@ public class Main {
 
         System.out.println("All expressions written to: " + outFile);
         System.out.println("Program successfully rewritten.");
+    }
+
+    private static void repl() {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        List<Rule> rules = new ArrayList<>();
+        RewriteEngine engine = new RewriteEngine(rules);
+        Evaluator evaluator = new Evaluator(engine);
+
+        System.out.println("=== Welcome to the Rx REPL ===");
+        printHelp();
+
+        while (true) {
+            System.out.print("> ");
+            input = scanner.nextLine().trim();
+
+            switch (input) {
+                case "\\q":
+                    System.out.println("Exiting RX REPL... bye.");
+                    return;
+
+                case "\\h":
+                    printHelp();
+                    break;
+
+                case "\\c":
+                    rules.clear();
+                    engine = new RewriteEngine(rules);
+                    evaluator = new Evaluator(engine);
+                    System.out.println("All rules cleared.");
+                    break;
+
+                case "\\r":
+                    if (rules.isEmpty()) {
+                        System.out.println("No rules defined.");
+                    } else {
+                        System.out.println("=== Rules ===");
+                        for (Rule rule : rules) {
+                            System.out.println(rule);
+                        }
+                    }
+                    break;
+
+                case "\\p":
+                    try {
+                        String preludeCode = Files.readString(Path.of("src/main/resources/rx_prelude.rx"));
+                        Parser preludeParser = new Parser(new Lexer(preludeCode));
+                        List<TopLevelItem> preludeItems = preludeParser.parse();
+
+                        for (TopLevelItem item : preludeItems) {
+                            if (item instanceof Rule rule) {
+                                rules.add(rule);
+                            }
+                        }
+
+                        engine = new RewriteEngine(rules);
+                        evaluator = new Evaluator(engine);
+                        System.out.println("Prelude loaded.");
+                    } catch (IOException e) {
+                        System.err.println("Failed to load prelude: " + e.getMessage());
+                    }
+                    break;
+
+                default:
+                    try {
+                        Parser parser = new Parser(new Lexer(input));
+                        List<TopLevelItem> items = parser.parse();
+
+                        for (TopLevelItem item : items) {
+                            if (item instanceof Rule rule) {
+                                rules.add(rule);
+                                engine = new RewriteEngine(rules);
+                                evaluator = new Evaluator(engine);
+                                System.out.println("Rule added: " + rule);
+                            } else if (item instanceof Expr expr) {
+                                Expr result = evaluator.evaluate(expr);
+                                System.out.printf("// %s\n%s\n\n", expr, result);
+                            }
+                        }
+                    } catch (RuntimeException e) {
+                        System.err.println("Parse or evaluation error: " + e.getMessage());
+                    }
+                    break;
+            }
+        }
+    }
+
+
+    private static void printHelp() {
+        System.out.println("Type '\\q' to quit.");
+        System.out.println("Type '\\h' for help.");
+        System.out.println("Type '\\c' to clear all rules.");
+        System.out.println("Type '\\r' to show all rules.");
+        System.out.println("Type '\\p' to load the prelude.");
     }
 }
