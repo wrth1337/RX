@@ -2,7 +2,10 @@ package lexer;
 
 public enum TokenType {
     IDENTIFIER("identifier"),
+
+    //Literals
     INT_LITERAL("intLiteral"),
+    FLOAT_LITERAL("floatLiteral"),
 
     //Aritmetics
     PLUS("+"),
@@ -23,10 +26,9 @@ public enum TokenType {
     COMMA(","),
 
     //Keywords
-    // Schlüsselwörter
     DEF("def"),
-    TRUE("true"),
-    FALSE("false"),
+    TRUE("true"), //BoolLiteral
+    FALSE("false"), //BoolLiteral
 
     //Rules
     ARROW("->"),
