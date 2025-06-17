@@ -44,23 +44,52 @@ public class RewriteEngine {
         Expr left = args.get(0);
         Expr right = args.get(1);
 
-        if (!(left instanceof IntLiteral l) || !(right instanceof IntLiteral r)) return Optional.empty();
+        //Float Promotion
+        boolean isFloat = left instanceof FloatLiteral || right instanceof FloatLiteral;
 
-        return switch (fn) {
-            case "add" -> Optional.of(new IntLiteral(l.value() + r.value()));
-            case "sub" -> Optional.of(new IntLiteral(l.value() - r.value()));
-            case "mul" -> Optional.of(new IntLiteral(l.value() * r.value()));
-            case "div" -> Optional.of(new IntLiteral(l.value() / r.value()));
+        if (isFloat) {
+            double a = (left instanceof FloatLiteral f) ? f.value()
+                    : ((IntLiteral) left).value();
+            double b = (right instanceof FloatLiteral f ) ? f.value()
+                    : ((IntLiteral) right).value();
 
-            case "eq"  -> Optional.of(new BoolLiteral(l.value() == r.value()));
-            case "lt"  -> Optional.of(new BoolLiteral(l.value() <  r.value()));
-            case "le"  -> Optional.of(new BoolLiteral(l.value() <= r.value()));
-            case "gt"  -> Optional.of(new BoolLiteral(l.value() >  r.value()));
-            case "ge"  -> Optional.of(new BoolLiteral(l.value() >= r.value()));
-            case "nq"  -> Optional.of(new BoolLiteral(l.value() != r.value()));
+            return switch (fn) {
+                case "add" -> Optional.of(new FloatLiteral(a + b));
+                case "sub" -> Optional.of(new FloatLiteral(a - b));
+                case "mul" -> Optional.of(new FloatLiteral(a * b));
+                case "div" -> Optional.of(new FloatLiteral(a / b));
 
-            default    -> Optional.empty();
-        };
+                case "eq"  -> Optional.of(new BoolLiteral(a == b));
+                case "lt"  -> Optional.of(new BoolLiteral(a <  b));
+                case "le"  -> Optional.of(new BoolLiteral(a <= b));
+                case "gt"  -> Optional.of(new BoolLiteral(a >  b));
+                case "ge"  -> Optional.of(new BoolLiteral(a >= b));
+                case "nq"  -> Optional.of(new BoolLiteral(a != b));
+
+                default    -> Optional.empty();
+            };
+        }
+
+        //Integer Operation
+        if (left instanceof IntLiteral l && right instanceof IntLiteral r) {
+            return switch (fn) {
+                case "add" -> Optional.of(new IntLiteral(l.value() + r.value()));
+                case "sub" -> Optional.of(new IntLiteral(l.value() - r.value()));
+                case "mul" -> Optional.of(new IntLiteral(l.value() * r.value()));
+                case "div" -> Optional.of(new IntLiteral(l.value() / r.value()));
+
+                case "eq"  -> Optional.of(new BoolLiteral(l.value() == r.value()));
+                case "lt"  -> Optional.of(new BoolLiteral(l.value() <  r.value()));
+                case "le"  -> Optional.of(new BoolLiteral(l.value() <= r.value()));
+                case "gt"  -> Optional.of(new BoolLiteral(l.value() >  r.value()));
+                case "ge"  -> Optional.of(new BoolLiteral(l.value() >= r.value()));
+                case "nq"  -> Optional.of(new BoolLiteral(l.value() != r.value()));
+
+                default    -> Optional.empty();
+            };
+        }
+
+        return Optional.empty();
     }
 
 }
