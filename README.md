@@ -7,12 +7,13 @@ The goal is not to build a production-ready language, but to study and experimen
 ## Features
 
 - ✅ User-defined rewrite rules with pattern matching
-- ✅ Support for integer and boolean literals - more to follow
+- ✅ Support for integer, float and boolean literals - more to follow
 - ✅ Arithmetic operations: `+`, `-`, `*`, `/`
 - ✅ Boolean comparisons: `==`, `!=`, `<`, `<=`, `>`, `>=`
 - ✅ Conditional branching via `if`
 - ✅ Separation of rules (definitions) and expressions (to be evaluated)
 - ✅ Native evaluation of arithmetic and boolean operators (to be possibly replaced in the future)
+- ✅ REPL for testing the evaluation of expressions and adding of new rules
 
 ## Example Programs
 ### 1. Conditional Expressions
