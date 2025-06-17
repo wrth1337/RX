@@ -19,12 +19,32 @@ public class Main {
         //TODO: Errorhandling
 
         if(args.length < 1) {
-            System.err.println("Filename must be provided as first argument");
+            System.err.println("Usage: rx [-i <file> | -r]");
             System.exit(1);
         }
 
-        String filename = args[0];
+        String mode = args[0];
 
+        switch (mode) {
+            case "-i":
+                if (args.length < 2) {
+                    System.err.println("Usage: rx -i <file>");
+                    System.exit(1);
+                }
+                String filename = args[1];
+                interpret(filename);
+                break;
+            case "-r":
+                System.out.println("REPL not implemented yet. Exiting...");
+                System.exit(0);
+                break;
+            default:
+                System.err.println("Usage: rx [-i <file> | -r]");
+                System.exit(1);
+        }
+    }
+
+    private static void interpret(String filename) throws IOException {
         if (!filename.endsWith(".rx")) {
             System.err.println("Error: input file must have a .rx extension");
             System.exit(1);
