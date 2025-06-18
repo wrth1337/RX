@@ -1,8 +1,8 @@
 package ast;
 
-public record PatternVar(String name) implements PatternArg {
+public record PatternVar(String name, Type type) implements PatternArg {
     @Override
     public String toString(){
-        return name;
+        return name + ": " + type;
     }
 }

@@ -1,8 +1,8 @@
 package ast;
 
-public record Rule(Pattern pattern, Expr replacement) implements TopLevelItem {
+public record Rule(Pattern pattern, Expr replacement, Type returnType) implements TopLevelItem {
     @Override
     public String toString() {
-        return pattern + " -> " + replacement;
+        return pattern + ": " + returnType + " -> " + replacement;
     }
 }
