@@ -36,6 +36,7 @@ public class Lexer {
             case '(': nextChar(); return new Token(TokenType.LPAREN, "(");
             case ')': nextChar(); return new Token(TokenType.RPAREN, ")");
             case ',': nextChar(); return new Token(TokenType.COMMA, ",");
+            case ':': nextChar(); return new Token(TokenType.COLON, ":");
             case '=': {
                 nextChar();
                 if (currentChar == '=') {
@@ -87,6 +88,9 @@ public class Lexer {
                 case "def" -> new Token(TokenType.DEF, "def");
                 case "true" -> new Token(TokenType.TRUE, "true");
                 case "false" -> new Token(TokenType.FALSE, "false");
+                case "int" -> new Token(TokenType.INT, "int");
+                case "float" -> new Token(TokenType.FLOAT, "float");
+                case "bool" -> new Token(TokenType.BOOL, "bool");
                 default -> new Token(TokenType.IDENTIFIER, ident);
             };
         }

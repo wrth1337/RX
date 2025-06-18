@@ -29,10 +29,14 @@ public enum TokenType {
     DEF("def"),
     TRUE("true"), //BoolLiteral
     FALSE("false"), //BoolLiteral
+    INT("int"),
+    FLOAT("float"),
+    BOOL("bool"),
 
     //Rules
     ARROW("->"),
     ASSIGN("="),
+    COLON(":"),
 
     EOF("EOF"),
     ERROR("ERROR");
@@ -40,6 +44,7 @@ public enum TokenType {
 
 
     public final String pattern;
+
     TokenType(String pattern) {
         this.pattern = pattern;
     }
