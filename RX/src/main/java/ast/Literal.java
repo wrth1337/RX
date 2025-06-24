@@ -1,6 +1,4 @@
 package ast;
 
-public sealed interface Literal extends Expr permits BoolLiteral, IntLiteral, FloatLiteral {
+public sealed interface Literal extends Expr permits BoolLiteral, IntLiteral, FloatLiteral, StringLiteral, CharLiteral {
 }
-
-//TODO: More literals such as strings, char, ...
