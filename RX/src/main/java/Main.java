@@ -114,7 +114,7 @@ public class Main {
         RewriteEngine engine = new RewriteEngine(rules);
         Evaluator evaluator = new Evaluator(engine);
 
-        System.out.println("=== Welcome to the Rx REPL ===");
+        System.out.println("=== Welcome to the RX REPL ===");
         printHelp();
 
         while (true) {
