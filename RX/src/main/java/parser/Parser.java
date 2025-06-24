@@ -45,6 +45,8 @@ public class Parser {
         return items;
     }
 
+
+    //Parse rules
     private Rule parseDefinition() {
         String name = parseIdentifier();
         expect(TokenType.LPAREN);
@@ -55,9 +57,15 @@ public class Parser {
             } while (match(TokenType.COMMA));
         }
         expect(TokenType.RPAREN);
+
+        Type returnType = null;
+        if (match(TokenType.COLON)) {
+            returnType = parseType();
+        }
+
         expect(TokenType.ASSIGN);
         Expr body = parseExpression();
-        return new Rule(new Pattern(name, args), body);
+        return new Rule(new Pattern(name, args), body, returnType);
     }
 
     private String parseIdentifier() {
@@ -68,11 +76,22 @@ public class Parser {
 
     private PatternArg parsePatternArg() {
         if (current.type() == TokenType.IDENTIFIER) {
-            return new PatternVar(parseIdentifier());
+            String name = parseIdentifier();
+            Type type = null;
+
+            if (match(TokenType.COLON)) {
+                type = parseType();
+            }
+
+            return new PatternVar(name, type);
         } else if (current.type() == TokenType.INT_LITERAL) {
             int value = Integer.parseInt(current.lexeme());
             advance();
             return new PatternLiteral(new IntLiteral(value));
+        } else if (current.type() == TokenType.FLOAT_LITERAL) {
+            double value = Double.parseDouble(current.lexeme());
+            advance();
+            return new PatternLiteral(new FloatLiteral(value));
         } else if (current.type() == TokenType.TRUE || current.type() == TokenType.FALSE) {
             boolean value = Boolean.parseBoolean(current.lexeme());
             advance();
@@ -82,7 +101,19 @@ public class Parser {
         }
     }
 
+    private Type parseType() {
+        return switch (current.type()) {
+            case INT -> { advance(); yield BaseType.INT; }
+            case FLOAT -> { advance(); yield BaseType.FLOAT; }
+            case BOOL -> { advance(); yield BaseType.BOOL; }
+            //TODO: Add better error handling for invalid types
+            default -> throw new RuntimeException("Expected a type (int, float, or bool), but found: " + current.lexeme());
+        };
+    }
 
+
+
+    //Parse expressions
     public Expr parseExpression() {
         return parseComparison();
     }
