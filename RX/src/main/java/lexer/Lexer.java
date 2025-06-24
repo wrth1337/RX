@@ -72,7 +72,10 @@ public class Lexer {
                     return new Token(TokenType.GT, ">");
                 }
             }
-
+            case '"':
+                return readStringLiteral();
+            case '\'':
+                return readCharLiteral();
         }
 
         // Number Literal (Int or Float)
@@ -187,5 +190,43 @@ public class Lexer {
                 seenDot ? TokenType.FLOAT_LITERAL : TokenType.INT_LITERAL,
                 sb.toString()
         );
+    }
+
+    private Token readStringLiteral() {
+        StringBuilder sb = new StringBuilder();
+        nextChar();
+
+        while (currentChar != '"' && currentChar != EOF) {
+            if (currentChar == '\n') {
+                return new Token(TokenType.ERROR, "Unterminated string literal");
+            }
+            sb.append(currentChar);
+            nextChar();
+        }
+
+        if (currentChar == EOF) {
+            return new Token(TokenType.ERROR, "Unterminated string literal");
+        }
+
+        nextChar();
+        return new Token(TokenType.STRING_LITERAL, sb.toString());
+    }
+
+    private Token readCharLiteral() {
+        nextChar();
+
+        if (currentChar == EOF) {
+            return new Token(TokenType.ERROR, "Unterminated character literal");
+        }
+
+        char charValue = currentChar;
+        nextChar();
+
+        if (currentChar != '\'') {
+            return new Token(TokenType.ERROR, "Unterminated character literal");
+        }
+
+        nextChar();
+        return new Token(TokenType.CHAR_LITERAL, String.valueOf(charValue));
     }
 }

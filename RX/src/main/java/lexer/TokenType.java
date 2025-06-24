@@ -6,6 +6,8 @@ public enum TokenType {
     //Literals
     INT_LITERAL("intLiteral"),
     FLOAT_LITERAL("floatLiteral"),
+    STRING_LITERAL("stringLiteral"),
+    CHAR_LITERAL("charLiteral"),
 
     //Aritmetics
     PLUS("+"),
