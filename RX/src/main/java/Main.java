@@ -3,6 +3,7 @@ import engine.RewriteEngine;
 import eval.Evaluator;
 import lexer.Lexer;
 import parser.Parser;
+import type.TypeChecker;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -79,6 +80,9 @@ public class Main {
                 expressions.add(expr);
             }
         }
+
+        TypeChecker checker = new TypeChecker();
+        checker.checkAll(rules);
 
         RewriteEngine engine = new RewriteEngine(rules);
         Evaluator evaluator = new Evaluator(engine);
@@ -176,6 +180,8 @@ public class Main {
                         for (TopLevelItem item : items) {
                             if (item instanceof Rule rule) {
                                 rules.add(rule);
+                                TypeChecker checker = new TypeChecker();
+                                checker.checkAll(rules);
                                 engine = new RewriteEngine(rules);
                                 evaluator = new Evaluator(engine);
                                 System.out.println("Rule added: " + rule);
