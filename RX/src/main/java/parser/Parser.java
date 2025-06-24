@@ -156,6 +156,14 @@ public class Parser {
             return new FloatLiteral(Double.parseDouble(token.lexeme()));
         }
 
+        if(match(TokenType.STRING_LITERAL)) {
+            return new StringLiteral(token.lexeme());
+        }
+
+        if(match(TokenType.CHAR_LITERAL)) {
+            return new CharLiteral(token.lexeme().charAt(0));
+        }
+
         if (match(TokenType.TRUE)) {
             return new BoolLiteral(true);
         }

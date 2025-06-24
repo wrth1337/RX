@@ -25,8 +25,7 @@ public class RewriteEngine {
             }
 
             //TODO: Maybe add another "engine" for evaluation in RX... could be very bad performance wise
-            //Idea: def add(x,y) = add(x-1,y+1)
-            //Idea: def add(0,y) = y .......
+            // Peano...
 
             // 2. Try native function
             Optional<Expr> nativeResult = evalNative(call);
@@ -39,6 +38,28 @@ public class RewriteEngine {
     private Optional<Expr> evalNative(Call call) {
         String fn = call.function();
         List<Expr> args = call.arguments();
+
+        //String Operations
+        if (fn.equals("concat") && args.size() == 2 &&
+                args.get(0) instanceof Literal a && args.get(1) instanceof Literal b) {
+            return Optional.of(new StringLiteral(a + b.toString()));
+        }
+
+        if (fn.equals("length") && args.size() == 1 && args.get(0) instanceof StringLiteral s) {
+            return Optional.of(new IntLiteral(s.value().length()));
+        }
+
+        if (fn.equals("charAt") && args.size() == 2 &&
+                args.get(0) instanceof StringLiteral s && args.get(1) instanceof IntLiteral i) {
+            return Optional.of(new CharLiteral(s.value().charAt(i.value())));
+        }
+
+        //Char Operations
+        if (fn.equals("toInt") && args.size() == 1 && args.get(0) instanceof CharLiteral c) {
+            return Optional.of(new IntLiteral(c.value()));
+        }
+
+        //Numeral operations
         if (args.size() != 2) return Optional.empty();
 
         Expr left = args.get(0);
