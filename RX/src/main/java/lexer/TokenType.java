@@ -31,6 +31,7 @@ public enum TokenType {
     DEF("def"),
     TRUE("true"), //BoolLiteral
     FALSE("false"), //BoolLiteral
+    WILDCARD("_"),
 
     //Rules
     ARROW("->"),

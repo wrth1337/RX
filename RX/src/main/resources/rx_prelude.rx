@@ -1,6 +1,6 @@
 // Control-Structures
-def if(true, thenBranch, elseBranch) = thenBranch
-def if(false, thenBranch, elseBranch) = elseBranch
+def if(true, thenBranch, _) = thenBranch
+def if(false, _, elseBranch) = elseBranch
 
 def max(a, b) = if(a > b, a, b)
 def min(a, b) = if(a < b, a, b)

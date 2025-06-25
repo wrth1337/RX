@@ -36,6 +36,7 @@ public class Lexer {
             case '(': nextChar(); return new Token(TokenType.LPAREN, "(");
             case ')': nextChar(); return new Token(TokenType.RPAREN, ")");
             case ',': nextChar(); return new Token(TokenType.COMMA, ",");
+            case '_': nextChar(); return new Token(TokenType.WILDCARD, "_");
             case '=': {
                 nextChar();
                 if (currentChar == '=') {
@@ -97,7 +98,7 @@ public class Lexer {
         // Unknown symbol
         char unknown = currentChar;
         nextChar();
-        return new Token(TokenType.ERROR, String.valueOf(unknown));
+        return new Token(TokenType.ERROR, "Unknown character: " + unknown);
     }
 
     private void skipWhitespaceAndComments() {

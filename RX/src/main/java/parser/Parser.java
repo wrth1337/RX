@@ -77,6 +77,9 @@ public class Parser {
             boolean value = Boolean.parseBoolean(current.lexeme());
             advance();
             return new PatternLiteral(new BoolLiteral(value));
+        } else if (current.type() == TokenType.WILDCARD) {
+            advance();
+            return new PatternWildcard();
         } else {
             return new PatternExpr(parseExpression());
         }
