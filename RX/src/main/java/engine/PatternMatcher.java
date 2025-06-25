@@ -15,6 +15,8 @@ public class PatternMatcher {
             PatternArg patArg = pattern.arguments().get(i);
             Expr exprArg = expr.arguments().get(i);
 
+            if (patArg instanceof PatternWildcard) break;
+
             if (!matchArg(patArg, exprArg, bindings)) {
                 return Optional.empty();
             }
