@@ -45,6 +45,7 @@ public class Parser {
         return items;
     }
 
+    //Parse Rules
     private Rule parseDefinition() {
         String name = parseIdentifier();
         expect(TokenType.LPAREN);
@@ -67,25 +68,62 @@ public class Parser {
     }
 
     private PatternArg parsePatternArg() {
-        if (current.type() == TokenType.IDENTIFIER) {
-            return new PatternVar(parseIdentifier());
-        } else if (current.type() == TokenType.INT_LITERAL) {
-            int value = Integer.parseInt(current.lexeme());
-            advance();
-            return new PatternLiteral(new IntLiteral(value));
-        } else if (current.type() == TokenType.TRUE || current.type() == TokenType.FALSE) {
-            boolean value = Boolean.parseBoolean(current.lexeme());
-            advance();
-            return new PatternLiteral(new BoolLiteral(value));
-        } else if (current.type() == TokenType.WILDCARD) {
-            advance();
-            return new PatternWildcard();
-        } else {
-            return new PatternExpr(parseExpression());
+        switch (current.type()) {
+            case TokenType.IDENTIFIER: {
+                String name = parseIdentifier();
+
+                if (current.type() == TokenType.LPAREN) {
+                    advance();
+                    List<Expr> args = new ArrayList<>();
+                    if (current.type() != TokenType.RPAREN) {
+                        do {
+                            args.add(parseExpression());
+                        } while (match(TokenType.COMMA));
+                    }
+                    expect(TokenType.RPAREN);
+                    return new PatternExpr(new Call(name, args));
+                }
+
+                return new PatternVar(name);
+            }
+            case TokenType.INT_LITERAL: {
+                int value = Integer.parseInt(current.lexeme());
+                advance();
+                return new PatternLiteral(new IntLiteral(value));
+            }
+            case TokenType.FLOAT_LITERAL: {
+                double value = Double.parseDouble(current.lexeme());
+                advance();
+                return new PatternLiteral(new FloatLiteral(value));
+            }
+            case TokenType.STRING_LITERAL: {
+                String value = current.lexeme();
+                advance();
+                return new PatternLiteral(new StringLiteral(value));
+            }
+            case TokenType.CHAR_LITERAL: {
+                char value = current.lexeme().charAt(0);
+                advance();
+                return new PatternLiteral(new CharLiteral(value));
+            }
+            case TokenType.TRUE:
+            case TokenType.FALSE: {
+                boolean value = Boolean.parseBoolean(current.lexeme());
+                advance();
+                return new PatternLiteral(new BoolLiteral(value));
+            }
+            case TokenType.WILDCARD: {
+                advance();
+                return new PatternWildcard();
+            }
+            default: {
+                throw new RuntimeException("Invalid pattern argument: " + current);
+            }
         }
     }
 
 
+    //Parse Expressions
     public Expr parseExpression() {
         return parseComparison();
     }
