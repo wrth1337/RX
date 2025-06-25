@@ -70,7 +70,21 @@ public class Parser {
     private PatternArg parsePatternArg() {
         switch (current.type()) {
             case TokenType.IDENTIFIER: {
-                return new PatternVar(parseIdentifier());
+                String name = parseIdentifier();
+
+                if (current.type() == TokenType.LPAREN) {
+                    advance();
+                    List<Expr> args = new ArrayList<>();
+                    if (current.type() != TokenType.RPAREN) {
+                        do {
+                            args.add(parseExpression());
+                        } while (match(TokenType.COMMA));
+                    }
+                    expect(TokenType.RPAREN);
+                    return new PatternExpr(new Call(name, args));
+                }
+
+                return new PatternVar(name);
             }
             case TokenType.INT_LITERAL: {
                 int value = Integer.parseInt(current.lexeme());
@@ -103,7 +117,7 @@ public class Parser {
                 return new PatternWildcard();
             }
             default: {
-                return new PatternExpr(parseExpression());
+                throw new RuntimeException("Invalid pattern argument: " + current);
             }
         }
     }
