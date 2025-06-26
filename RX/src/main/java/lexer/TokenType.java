@@ -14,7 +14,7 @@ public enum TokenType {
     MINUS("-"),
     MULT("*"),
     DIV("/"),
-    MOD("%",
+    MOD("%"),
 
     //Bool Stuff
     EQ("=="),
