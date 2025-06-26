@@ -33,6 +33,7 @@ public class Lexer {
             }
             case '*': nextChar(); return new Token(TokenType.MULT, "*");
             case '/': nextChar(); return new Token(TokenType.DIV, "/");
+            case '%': nextChar(); return new Token(TokenType.MOD, "%");
             case '(': nextChar(); return new Token(TokenType.LPAREN, "(");
             case ')': nextChar(); return new Token(TokenType.RPAREN, ")");
             case ',': nextChar(); return new Token(TokenType.COMMA, ",");
