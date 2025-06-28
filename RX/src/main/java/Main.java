@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    static boolean traceMode = false;
+
     public static void main(String[] args) throws IOException {
         //TODO: Add more args/flags such as verbose mode, debug mode, repl(?) etc...
         //TODO: Metaprogramming -> Rules can have Rules as parameters -> OOP?
@@ -168,6 +170,10 @@ public class Main {
                     }
                     break;
 
+                case "\\t":
+                    traceMode = !traceMode;
+                    break;
+
                 default:
                     try {
                         Parser parser = new Parser(new Lexer(input));
@@ -199,5 +205,6 @@ public class Main {
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all rules.");
         System.out.println("Type '\\p' to load the prelude.");
+        System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
     }
 }
