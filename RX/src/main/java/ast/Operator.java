@@ -1,5 +1,5 @@
 package ast;
 
 public enum Operator {
-    ADD, SUB, MUL, DIV, EQ, NQ, GT, LT, GE, LE
+    ADD, SUB, MUL, DIV, MOD, EQ, NQ, GT, LT, GE, LE
 }

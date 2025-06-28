@@ -79,6 +79,7 @@ public class RewriteEngine {
                 case "sub" -> Optional.of(new FloatLiteral(a - b));
                 case "mul" -> Optional.of(new FloatLiteral(a * b));
                 case "div" -> Optional.of(new FloatLiteral(a / b));
+                case "mod" -> Optional.of(new FloatLiteral(a % b));
 
                 case "eq"  -> Optional.of(new BoolLiteral(a == b));
                 case "lt"  -> Optional.of(new BoolLiteral(a <  b));
@@ -98,6 +99,7 @@ public class RewriteEngine {
                 case "sub" -> Optional.of(new IntLiteral(l.value() - r.value()));
                 case "mul" -> Optional.of(new IntLiteral(l.value() * r.value()));
                 case "div" -> Optional.of(new IntLiteral(l.value() / r.value()));
+                case "mod" -> Optional.of(new IntLiteral(l.value() % r.value()));
 
                 case "eq"  -> Optional.of(new BoolLiteral(l.value() == r.value()));
                 case "lt"  -> Optional.of(new BoolLiteral(l.value() <  r.value()));

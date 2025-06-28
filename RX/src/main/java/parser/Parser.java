@@ -179,6 +179,8 @@ public class Parser {
                 expr = new BinaryOp(expr, Operator.MUL, parsePrimary());
             } else if (match(TokenType.DIV)) {
                 expr = new BinaryOp(expr, Operator.DIV, parsePrimary());
+            } else if (match(TokenType.MOD)) {
+                expr = new BinaryOp(expr, Operator.MOD, parsePrimary());
             } else {
                 break;
             }
