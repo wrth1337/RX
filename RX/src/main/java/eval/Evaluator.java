@@ -19,6 +19,7 @@ public class Evaluator {
                 case SUB -> "sub";
                 case MUL -> "mul";
                 case DIV -> "div";
+                case MOD -> "mod";
                 case EQ  -> "eq";
                 case LT  -> "lt";
                 case NQ -> "nq";
