@@ -1,5 +1,6 @@
 import ast.*;
 import engine.RewriteEngine;
+import engine.RuleValidator;
 import eval.Evaluator;
 import lexer.Lexer;
 import parser.Parser;
@@ -81,6 +82,9 @@ public class Main {
                 expressions.add(expr);
             }
         }
+
+        //Check rules for duplicates
+        RuleValidator.ensureNoDuplicates(rules);
 
         RewriteEngine engine = new RewriteEngine(rules);
         Evaluator evaluator = new Evaluator(engine);
