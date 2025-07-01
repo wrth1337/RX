@@ -36,15 +36,12 @@ public class RuleValidator {
 
     private static boolean patternArgsEqual(PatternArg a, PatternArg b) {
         //Different classes?
-        if (a.getClass() != b.getClass()) return false;
+        if (a.getClass() != b.getClass()) {
+            return false;
+        }
 
         //Both PatternVar?
         if (a instanceof PatternVar v1 && b instanceof PatternVar v2) {
-            return true;
-        }
-
-        //Both Wildcards?
-        if (a instanceof PatternWildcard && b instanceof PatternWildcard) {
             return true;
         }
 
@@ -62,14 +59,24 @@ public class RuleValidator {
     }
 
     private static boolean callEquals(Expr e1, Expr e2) {
-        if (!(e1 instanceof Call c1 && e2 instanceof Call c2)) return false;
-        if (!c1.function().equals(c2.function())) return false;
-        if (c1.arguments().size() != c2.arguments().size()) return false;
+        if (e1 instanceof Call c1 && e2 instanceof Call c2) {
+            if (!c1.function().equals(c2.function())) return false;
+            if (c1.arguments().size() != c2.arguments().size()) return false;
 
-        for (int i = 0; i < c1.arguments().size(); i++) {
-            if (!callEquals(c1.arguments().get(i), c2.arguments().get(i))) return false;
+            for (int i = 0; i < c1.arguments().size(); i++) {
+                if (!callEquals(c1.arguments().get(i), c2.arguments().get(i))) return false;
+            }
+            return true;
         }
 
-        return true;
+        if (e1 instanceof Literal l1 && e2 instanceof Literal l2) {
+            return l1.equals(l2);
+        }
+
+        if (e1 instanceof Var && e2 instanceof Var) {
+            return true;
+        }
+
+        return false;
     }
 }
