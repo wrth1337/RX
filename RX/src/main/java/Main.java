@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    static boolean traceMode = false;
+
     public static void main(String[] args) throws IOException {
         //TODO: Add more args/flags such as verbose mode, debug mode, repl(?) etc...
         //TODO: Metaprogramming -> Rules can have Rules as parameters -> OOP?
@@ -168,6 +170,11 @@ public class Main {
                     }
                     break;
 
+                case "\\t":
+                    traceMode = !traceMode;
+                    System.out.printf("Trace mode set to %s%n", traceMode ? "on" : "off");
+                    break;
+
                 default:
                     try {
                         Parser parser = new Parser(new Lexer(input));
@@ -180,8 +187,18 @@ public class Main {
                                 evaluator = new Evaluator(engine);
                                 System.out.println("Rule added: " + rule);
                             } else if (item instanceof Expr expr) {
-                                Expr result = evaluator.evaluate(expr);
-                                System.out.printf("// %s\n%s\n\n", expr, result);
+                                if (traceMode) {
+                                    List<String> trace = new ArrayList<>();
+                                    Expr result = evaluator.evaluateWithTrace(expr, trace);
+                                    System.out.println();
+                                    for (String s : trace) {
+                                        System.out.println(s);
+                                    }
+                                    System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
+                                } else {
+                                    Expr result = evaluator.evaluate(expr);
+                                    System.out.printf("// %s\n%s\n\n", expr, result);
+                                }
                             }
                         }
                     } catch (RuntimeException e) {
@@ -199,5 +216,6 @@ public class Main {
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all rules.");
         System.out.println("Type '\\p' to load the prelude.");
+        System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
     }
 }

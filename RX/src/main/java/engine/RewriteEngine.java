@@ -1,6 +1,8 @@
 package engine;
 
 import ast.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,12 +17,19 @@ public class RewriteEngine {
     }
 
     public Expr rewrite(Expr expr) {
+        return rewriteWithRule(expr)
+                .map(RewriteResult::result)
+                .orElse(expr);
+    }
+
+    public Optional<RewriteResult> rewriteWithRule(Expr expr) {
         if (expr instanceof Call call) {
             // 1. Try user-defined rules
             for (Rule rule : rules) {
                 Optional<Map<String, Expr>> match = matcher.match(call, rule.pattern());
                 if (match.isPresent()) {
-                    return substitutor.substitute(rule.replacement(), match.get());
+                    Expr result = substitutor.substitute(rule.replacement(), match.get());
+                    return Optional.of(new RewriteResult(result, rule));
                 }
             }
 
@@ -29,11 +38,15 @@ public class RewriteEngine {
 
             // 2. Try native function
             Optional<Expr> nativeResult = evalNative(call);
-            if (nativeResult.isPresent()) return nativeResult.get();
-
+            if (nativeResult.isPresent()) {
+                Rule nativeRule = makeNativeRule(call, nativeResult.get());
+                return Optional.of(new RewriteResult(nativeResult.get(), nativeRule));
+            }
         }
-        return expr;
+
+        return Optional.empty();
     }
+
 
     private Optional<Expr> evalNative(Call call) {
         String fn = call.function();
@@ -113,6 +126,18 @@ public class RewriteEngine {
         }
 
         return Optional.empty();
+    }
+
+    //Is needed for the Trace-Mode -> Native Rules arent "Rewriting-Rules" per definition
+    private Rule makeNativeRule(Call call, Expr result) {
+        String sb = "[native rule] " + call.function();
+
+        List<PatternArg> patternArgs= new ArrayList<>();
+        for (int i = 0; i < call.arguments().size() ; i++) {
+            patternArgs.add(new PatternExpr(call.arguments().get(i)));
+        }
+        Pattern dummypattern = new Pattern(sb, patternArgs);
+        return new Rule(dummypattern, result);
     }
 
 }
