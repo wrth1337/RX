@@ -10,6 +10,8 @@ The goal is not to build a production-ready language, but to study and experimen
 - Support for integer, float, boolean, character and string literals
 - Arithmetic operations: `+`, `-`, `*`, `/`, `%`
 - Boolean comparisons: `==`, `!=`, `<`, `<=`, `>`, `>=`
+- String operations: `concat`, `length`, `charAt`
+- Boolean operations: `toInt`
 - REPL for testing the evaluation of expressions and adding of new rules
 - Wildcards in rule definition to prevent substitution (eg. ``` def if(true, thenBranch, _) = thenBranch ```)
 - A trace mode in the REPL to be able to trace the exact replacement steps individually
