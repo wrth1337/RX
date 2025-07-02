@@ -6,16 +6,26 @@ The goal is not to build a production-ready language, but to study and experimen
 
 ## Features
 
-- ✅ User-defined rewrite rules with pattern matching
-- ✅ Support for integer, float and boolean literals - more to follow
-- ✅ Arithmetic operations: `+`, `-`, `*`, `/`
-- ✅ Boolean comparisons: `==`, `!=`, `<`, `<=`, `>`, `>=`
-- ✅ Conditional branching via `if`
-- ✅ Separation of rules (definitions) and expressions (to be evaluated)
-- ✅ Native evaluation of arithmetic and boolean operators (to be possibly replaced in the future)
-- ✅ REPL for testing the evaluation of expressions and adding of new rules
+- User-defined rewrite rules with pattern matching
+- Support for integer, float, boolean, character and string literals
+- Arithmetic operations: `+`, `-`, `*`, `/`, `%`
+- Boolean comparisons: `==`, `!=`, `<`, `<=`, `>`, `>=`
+- REPL for testing the evaluation of expressions and adding of new rules
+- Wildcards in rule definition to prevent substitution (eg. ``` def if(true, thenBranch, _) = thenBranch ```)
+- A trace mode in the REPL to be able to trace the exact replacement steps individually
+- Various steps to harden RX (eg. Errormessages, Prevent ambivalent rules from being added, etc.)
 
-## Example Programs
+### Currently WIP
+- Outsourcing of various rules to individual modules, which can then be imported using imports
+- Various modules that natively extend the functions of RX
+  - More complex data structures such as lists
+  - lambda calculus translators
+  - binary operations
+  - advanced mathematical operations
+  - ...
+- Ideas for possible further features are constantly emerging :)
+
+## Examples
 ### 1. Conditional Expressions
 ```rx
 def if(true, thenBranch, elseBranch) = thenBranch
@@ -55,6 +65,73 @@ def square(x) = x * x
 square(4)
 ```
 **Result:** 16
+
+### 5. Working with lists
+<details>
+  <summary>Rules from the prelude</summary>
+    ```rx
+  
+    def Nil() = Nil()
+    def Cons(h, t) = Cons(h, t)
+    
+    def length(Nil()) = 0
+    def length(Cons(h, t)) = 1 + length(t)
+    
+    def sum(Nil()) = 0
+    def sum(Cons(h, t)) = h + sum(t)
+    
+    def reverse(xs) = rev(xs, Nil())
+    def rev(Nil(), acc) = acc
+    def rev(Cons(h, t), acc) = rev(t, Cons(h, acc))
+    
+    def head(Cons(h, t)) = h
+    def tail(Cons(h, t)) = t
+    def last(Cons(h, Nil())) = h
+    def last(Cons(h, t)) = last(t)
+    
+    def testList() = Cons(1000, Cons(300, Cons(30, Cons(7, Nil()))))
+    ```
+</details>
+
+```rx
+sum(testList())
+length(testList())
+head(testList())
+```
+**Result of sum:** 1337\
+**Result of length:** 4\
+**Result of head:** 1000
+
+### 6. Example-Output from the Tracemode
+```rx
+def if(true, thenBranch, elseBranch) = thenBranch
+def if(false, thenBranch, elseBranch) = elseBranch
+
+def max(a, b) = if(a > b, a, b)
+
+max(5, 2+1)
+```
+**Output**
+```
+> max(5,2+1)
+
+[1] Expression: add[2, 1]
+     Rule: [native rule] add[2, 1] -> 3
+     Result: 3
+[2] Expression: max[5, 3]
+     Rule: max[a, b] -> if[GT(a, b), a, b]
+     Result: if[GT(5, 3), 5, 3]
+[3] Expression: gt[5, 3]
+     Rule: [native rule] gt[5, 3] -> true
+     Result: true
+[4] Expression: if[true, 5, 3]
+     Rule: if[true, thenBranch, _] -> thenBranch
+     Result: 5
+
+Initial Expression: max[5, ADD(2, 1)]
+Result: 5
+```
+
 
 ## Prelude
 A set of basic definitions is loaded before each program:
@@ -121,14 +198,6 @@ def last(Cons(h, t)) = last(t)
 def testList() = Cons(1000, Cons(300, Cons(30, Cons(7, Nil()))))
 def testList2() = Cons(1000.1337, Cons(300, Cons(30, Cons(7, Nil()))))
 ```
-
-## Planned or possible extensions
-- let bindings
-- Strings and more data types
-- Input/output primitives (with controlled side effects)
-- Type system or type hints
-- Rewriting traces and visual debugging tools
-- Modules and imports for larger programs
 
 ## Notes
 Currently, arithmetic and comparison operators are evaluated natively in Java, not via rewrite rules. Replacing this with a fully rule-based system is a possible future direction.
