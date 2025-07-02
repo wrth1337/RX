@@ -4,6 +4,9 @@ RX (**R**ewrite e**X**pressions) is a small interpreter for a custom term-rewrit
 
 The goal is not to build a production-ready language, but to study and experiment with how term rewriting interacts with typical features of programming languages such as control flow, recursion, and evaluation strategies.
 
+> [!NOTE]  
+> This project is part of the module "Programmiersprachen: Konzepte und Realisation" at the Technische Hochschule Mittelhessen
+
 ## Features
 
 - User-defined rewrite rules with pattern matching
