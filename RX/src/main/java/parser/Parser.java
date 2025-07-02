@@ -38,11 +38,19 @@ public class Parser {
         while (current.type() != TokenType.EOF) {
             if (match(TokenType.DEF)) {
                 items.add(parseDefinition());
+            } else if(match(TokenType.IMPORT)) {
+                items.add(parseImport());
             } else {
                 items.add(parseExpression());
             }
         }
         return items;
+    }
+
+    //Parse Imports
+    private Import parseImport() {
+        String module = parseIdentifier();
+        return new Import(module);
     }
 
     //Parse Rules
