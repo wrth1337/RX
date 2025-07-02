@@ -1,5 +1,6 @@
 import ast.*;
 import engine.RewriteEngine;
+import engine.RuleValidator;
 import eval.Evaluator;
 import lexer.Lexer;
 import parser.Parser;
@@ -81,6 +82,9 @@ public class Main {
                 expressions.add(expr);
             }
         }
+
+        //Check rules for duplicates
+        RuleValidator.ensureNoDuplicates(rules);
 
         RewriteEngine engine = new RewriteEngine(rules);
         Evaluator evaluator = new Evaluator(engine);
@@ -182,10 +186,19 @@ public class Main {
 
                         for (TopLevelItem item : items) {
                             if (item instanceof Rule rule) {
-                                rules.add(rule);
-                                engine = new RewriteEngine(rules);
-                                evaluator = new Evaluator(engine);
-                                System.out.println("Rule added: " + rule);
+                                try {
+                                    List<Rule> newRules = new ArrayList<>(rules);
+                                    newRules.add(rule);
+                                    RuleValidator.ensureNoDuplicates(newRules);
+                                    rules = newRules;
+                                    engine = new RewriteEngine(rules);
+                                    evaluator = new Evaluator(engine);
+                                    System.out.println("Rule added: " + rule);
+                                } catch (Exception e) {
+                                    System.err.println(e.getMessage());
+                                    System.err.println("Rule not added.");
+                                }
+
                             } else if (item instanceof Expr expr) {
                                 if (traceMode) {
                                     List<String> trace = new ArrayList<>();
