@@ -34,8 +34,8 @@ The goal is not to build a production-ready language, but to study and experimen
 ## Examples
 ### 1. Conditional Expressions
 ```rx
-def if(true, thenBranch, elseBranch) = thenBranch
-def if(false, thenBranch, elseBranch) = elseBranch
+def if(true, thenBranch, _) = thenBranch
+def if(false, _, elseBranch) = elseBranch
 
 if(5 < 10, 1, 0)
 ```
@@ -43,8 +43,8 @@ if(5 < 10, 1, 0)
 
 ### 2. Maximum and Minimum
 ```rx
-def if(true, thenBranch, elseBranch) = thenBranch
-def if(false, thenBranch, elseBranch) = elseBranch
+def if(true, thenBranch, _) = thenBranch
+def if(false, _, elseBranch) = elseBranch
 
 def max(a, b) = if(a > b, a, b)
 def min(a, b) = if(a < b, a, b)
