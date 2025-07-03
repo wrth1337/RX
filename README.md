@@ -29,6 +29,12 @@ The goal is not to build a production-ready language, but to study and experimen
   - binary operations
   - advanced mathematical operations
   - ...
+- Providing more “syntactic sugar”
+  - Is converted internally by the parser into a call to rewrite rules
+  - Possible:
+    - ```[]``` -> Easier creation of lists
+    - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
+    - ```"Hello, ${name}!"``` -> String-Interpolation
 - Ideas for possible further features are constantly emerging :)
 
 ## Examples
