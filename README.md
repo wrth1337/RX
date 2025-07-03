@@ -94,12 +94,12 @@ square(4)
     def tail(Cons(h, t)) = t
     def last(Cons(h, Nil())) = h
     def last(Cons(h, t)) = last(t)
-    
-    def testList() = Cons(1000, Cons(300, Cons(30, Cons(7, Nil()))))
     ```
 </details>
 
 ```rx
+def testList() = Cons(1000, Cons(300, Cons(30, Cons(7, Nil()))))
+
 sum(testList())
 length(testList())
 head(testList())
@@ -110,8 +110,8 @@ head(testList())
 
 ### 6. Example-Output from the Tracemode
 ```rx
-def if(true, thenBranch, elseBranch) = thenBranch
-def if(false, thenBranch, elseBranch) = elseBranch
+def if(true, thenBranch, _) = thenBranch
+def if(false, _, elseBranch) = elseBranch
 
 def max(a, b) = if(a > b, a, b)
 
