@@ -23,6 +23,7 @@ The goal is not to build a production-ready language, but to study and experimen
 ### Currently WIP
 - Outsourcing of various rules to individual modules, which can then be imported using imports
 - Debug-Mode -> Detailed logging of the entire process from the interpreter
+- Syntax-Highlighting for the REPL
 - Various modules that natively extend the functions of RX
   - More complex data structures such as lists
   - lambda calculus translators
