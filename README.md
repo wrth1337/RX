@@ -30,7 +30,7 @@ The goal is not to build a production-ready language, but to study and experimen
   - advanced mathematical operations
   - ...
 - Providing more “syntactic sugar”
-  - Is converted internally by the parser into a call to rewrite rules
+  - Is converted internally by the parser into a call of rewrite rules
   - Possible:
     - ```[]``` -> Easier creation of lists
     - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
