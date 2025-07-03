@@ -40,8 +40,10 @@ The goal is not to build a production-ready language, but to study and experimen
 - Ideas for possible further features are constantly emerging :)
 
 ## Examples
+> [!WARNING]  
+> The following highlighting uses haskell as a preset -> This does not correspond to the correct highlighting in all cases. Unfortunately not possible otherwise, as inlinecss is sanitized by Github.
 ### 1. Conditional Expressions
-```rx
+```haskell
 def if(true, thenBranch, _) = thenBranch
 def if(false, _, elseBranch) = elseBranch
 
@@ -50,7 +52,7 @@ if(5 < 10, 1, 0)
 **Result:** 1
 
 ### 2. Maximum and Minimum
-```rx
+```haskell
 def if(true, thenBranch, _) = thenBranch
 def if(false, _, elseBranch) = elseBranch
 
@@ -64,7 +66,7 @@ min(5, 12)
 **Result of min(5, 12):** 5
 
 ### 3. Recursion
-```rx
+```haskell
 def factorial(0) = 1
 def factorial(n) = n * factorial(n - 1)
 
@@ -73,7 +75,7 @@ factorial(5)
 **Result:** 120
 
 ### 4. Simple Arithmetic Function
-```rx
+```haskell
 def square(x) = x * x
 
 square(4)
@@ -83,7 +85,7 @@ square(4)
 ### 5. Working with lists
 <details>
   <summary>Rules from the prelude</summary>
-    ```rx
+    ```haskell
   
     def Nil() = Nil()
     def Cons(h, t) = Cons(h, t)
@@ -105,7 +107,7 @@ square(4)
     ```
 </details>
 
-```rx
+```haskell
 def testList() = Cons(1000, Cons(300, Cons(30, Cons(7, Nil()))))
 
 sum(testList())
@@ -117,7 +119,7 @@ head(testList())
 **Result of head:** 1000
 
 ### 6. Example-Output from the Tracemode
-```rx
+```haskell
 def if(true, thenBranch, _) = thenBranch
 def if(false, _, elseBranch) = elseBranch
 
@@ -149,7 +151,7 @@ Result: 5
 
 ## Prelude
 A set of basic definitions is loaded before each program:
-```rx
+```haskell
 // Prelude - A collection of basic functions and data structures
 // This file contains basic functions and data structures for functional programming.
 // The code is divided into logical sections and commented to improve readability and maintainability.
