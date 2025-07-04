@@ -233,6 +233,20 @@ public class Main {
                                     Expr result = evaluator.evaluate(expr);
                                     System.out.printf("// %s\n%s\n\n", expr, result);
                                 }
+                            } else if (item instanceof Import imp) {
+                                try {
+                                    List<Rule> newRules = new ArrayList<>(rules);
+                                    ModuleLoader loader = new ModuleLoader();
+                                    List<Rule> importedRules = loader.loadModuleForREPL(imp.module());
+                                    newRules.addAll(importedRules);
+                                    RuleValidator.ensureNoDuplicates(newRules);
+                                    rules = newRules;
+                                    engine = new RewriteEngine(rules);
+                                    evaluator = new Evaluator(engine);
+                                    System.out.println("Module imported: " + imp.module());
+                                } catch (Exception e) {
+                                    System.err.println("Failed to load module: " + imp.module() + " - " + e.getMessage());
+                                }
                             }
                         }
                     } catch (RuntimeException e) {

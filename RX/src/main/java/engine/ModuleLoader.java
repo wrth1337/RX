@@ -23,6 +23,11 @@ public class ModuleLoader {
         return allRules;
     }
 
+    public List<Rule> loadModuleForREPL(String moduleName) {
+        loadModule(moduleName);
+        return allRules;
+    }
+
     private void loadModule(String moduleName) {
         if (loadedModules.contains(moduleName)) {
             return;
