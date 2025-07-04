@@ -19,9 +19,9 @@ The goal is not to build a production-ready language, but to study and experimen
 - Wildcards in rule definition to prevent substitution (eg. ``` def if(true, thenBranch, _) = thenBranch ```)
 - A trace mode in the REPL to be able to trace the exact replacement steps individually
 - Various steps to harden RX (eg. Errormessages, Prevent ambivalent rules from being added, etc.)
+- Loading of individual modules - outsourcing of rule sets to independent modules, differentiation between internal and custom modules
 
 ### Currently WIP
-- Outsourcing of various rules to individual modules, which can then be imported using imports
 - Debug-Mode -> Detailed logging of the entire process from the interpreter
 - Syntax-Highlighting for the REPL
 - Various modules that natively extend the functions of RX
