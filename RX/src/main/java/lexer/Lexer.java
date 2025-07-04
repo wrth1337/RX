@@ -89,6 +89,7 @@ public class Lexer {
         if (Character.isLetter(currentChar)) {
             String ident = readIdentifier();
             return switch (ident) {
+                case "import" -> new Token(TokenType.IMPORT, "import");
                 case "def" -> new Token(TokenType.DEF, "def");
                 case "true" -> new Token(TokenType.TRUE, "true");
                 case "false" -> new Token(TokenType.FALSE, "false");

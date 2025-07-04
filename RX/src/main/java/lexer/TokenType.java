@@ -29,6 +29,7 @@ public enum TokenType {
     COMMA(","),
 
     //Keywords
+    IMPORT("import"),
     DEF("def"),
     TRUE("true"), //BoolLiteral
     FALSE("false"), //BoolLiteral

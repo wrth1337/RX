@@ -1,4 +1,5 @@
 import ast.*;
+import engine.ModuleLoader;
 import engine.RewriteEngine;
 import engine.RuleValidator;
 import eval.Evaluator;
@@ -52,6 +53,8 @@ public class Main {
     }
 
     private static void interpret(String filename) throws IOException {
+        //TODO: put in its own package...
+
         if (!filename.endsWith(".rx")) {
             System.err.println("Error: input file must have a .rx extension");
             System.exit(1);
@@ -66,29 +69,44 @@ public class Main {
             System.exit(1);
         }
 
-
+        // Load prelude
         String preludeCode = Files.readString(Path.of("src/main/resources/rx_prelude.rx"));
         String fullCode = preludeCode + "\n" + code;
 
+        // Parse the whole sourcecode
         Parser parser = new Parser(new Lexer(fullCode));
         List<TopLevelItem> items = parser.parse();
 
-        List<Rule> rules = new ArrayList<>();
+        List<Import> rootImports = new ArrayList<>();
+        List<Rule> rootRules = new ArrayList<>();
         List<Expr> expressions = new ArrayList<>();
         for (TopLevelItem item : items) {
             if (item instanceof Rule rule) {
-                rules.add(rule);
+                rootRules.add(rule);
             } else if (item instanceof Expr expr) {
                 expressions.add(expr);
+            } else if (item instanceof Import imp) {
+                rootImports.add(imp);
             }
         }
 
-        //Check rules for duplicates
-        RuleValidator.ensureNoDuplicates(rules);
+        // Load all imports
+        ModuleLoader loader = new ModuleLoader();
+        List<Rule> allImportedRules = loader.loadModules(rootImports);
 
-        RewriteEngine engine = new RewriteEngine(rules);
+        // Fuse rootRoles and importedRules
+        List<Rule> allRules = new ArrayList<>();
+        allRules.addAll(allImportedRules);
+        allRules.addAll(rootRules);
+
+        // Check rules for duplicates
+        RuleValidator.ensureNoDuplicates(allRules);
+
+        // Load Engine
+        RewriteEngine engine = new RewriteEngine(allRules);
         Evaluator evaluator = new Evaluator(engine);
 
+        // Evaluation
         StringBuilder outputBuilder = new StringBuilder();
 
         for (int i = 0; i < expressions.size(); i++) {
@@ -113,6 +131,9 @@ public class Main {
     }
 
     private static void repl() {
+        //TODO: put in its own package...
+        //TODO: Highlighting
+
         Scanner scanner = new Scanner(System.in);
         String input;
 
@@ -211,6 +232,20 @@ public class Main {
                                 } else {
                                     Expr result = evaluator.evaluate(expr);
                                     System.out.printf("// %s\n%s\n\n", expr, result);
+                                }
+                            } else if (item instanceof Import imp) {
+                                try {
+                                    List<Rule> newRules = new ArrayList<>(rules);
+                                    ModuleLoader loader = new ModuleLoader();
+                                    List<Rule> importedRules = loader.loadModuleForREPL(imp.module());
+                                    newRules.addAll(importedRules);
+                                    RuleValidator.ensureNoDuplicates(newRules);
+                                    rules = newRules;
+                                    engine = new RewriteEngine(rules);
+                                    evaluator = new Evaluator(engine);
+                                    System.out.println("Module imported: " + imp.module());
+                                } catch (Exception e) {
+                                    System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
                                 }
                             }
                         }
