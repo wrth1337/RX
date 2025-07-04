@@ -12,8 +12,6 @@ public class ModuleLoader {
 
     private final Path userModulesBase = Paths.get("modules");
     private final Set<String> loadedModules = new HashSet<>();
-    private final Set<String> loadedFromInternal = new HashSet<>();
-    private final Set<String> loadedFromUser = new HashSet<>();
     private final List<Rule> allRules = new ArrayList<>();
 
     public List<Rule> loadModules(List<Import> rootImports) {
@@ -41,7 +39,6 @@ public class ModuleLoader {
         if (in != null) {
             parseModuleStream(moduleName, in);
             loadedInternal = true;
-            loadedFromInternal.add(moduleName);
         }
 
         // Search module in user modules
@@ -51,7 +48,6 @@ public class ModuleLoader {
                 InputStream userIn = Files.newInputStream(userPath);
                 parseModuleStream(moduleName, userIn);
                 loadedExternal = true;
-                loadedFromUser.add(moduleName);
             } catch (IOException e) {
                 throw new RuntimeException("Error reading user module: " + userPath, e);
             }
