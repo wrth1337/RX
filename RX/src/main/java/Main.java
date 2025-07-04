@@ -245,7 +245,7 @@ public class Main {
                                     evaluator = new Evaluator(engine);
                                     System.out.println("Module imported: " + imp.module());
                                 } catch (Exception e) {
-                                    System.err.println("Failed to load module: " + imp.module() + " - " + e.getMessage());
+                                    System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
                                 }
                             }
                         }
