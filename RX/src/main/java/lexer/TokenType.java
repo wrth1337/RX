@@ -27,6 +27,7 @@ public enum TokenType {
     LPAREN("("),
     RPAREN(")"),
     COMMA(","),
+    DOT("."),
 
     //Keywords
     IMPORT("import"),
