@@ -1,5 +1,5 @@
 import ast.*;
-import engine.ModuleLoader;
+import modules.ModuleLoader;
 import engine.RewriteEngine;
 import engine.RuleValidator;
 import eval.Evaluator;

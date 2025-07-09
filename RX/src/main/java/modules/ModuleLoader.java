@@ -1,4 +1,4 @@
-package engine;
+package modules;
 
 import ast.*;
 import lexer.Lexer;
