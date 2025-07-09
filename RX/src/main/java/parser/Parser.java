@@ -79,6 +79,13 @@ public class Parser {
         switch (current.type()) {
             case TokenType.IDENTIFIER: {
                 String name = parseIdentifier();
+                String namespace = null;
+
+                if (current.type() == TokenType.DOT) {
+                    advance();
+                    namespace = name;
+                    name = parseIdentifier();
+                }
 
                 if (current.type() == TokenType.LPAREN) {
                     advance();
@@ -89,7 +96,7 @@ public class Parser {
                         } while (match(TokenType.COMMA));
                     }
                     expect(TokenType.RPAREN);
-                    return new PatternExpr(new Call(name, args));
+                    return new PatternExpr(new Call(namespace, name, args));
                 }
 
                 return new PatternVar(name);
@@ -225,6 +232,13 @@ public class Parser {
 
         if (match(TokenType.IDENTIFIER)) {
             String name = token.lexeme();
+            String namespace = null;
+
+            if (current.type() == TokenType.DOT) {
+                advance();
+                namespace = name;
+                name = parseIdentifier();
+            }
             if (match(TokenType.LPAREN)) {
                 List<Expr> args = new ArrayList<>();
                 if (current.type() != TokenType.RPAREN) {
@@ -233,7 +247,7 @@ public class Parser {
                     } while (match(TokenType.COMMA));
                 }
                 expect(TokenType.RPAREN);
-                return new Call(name, args);
+                return new Call(namespace, name, args);
             } else {
                 return new Var(name);
             }
