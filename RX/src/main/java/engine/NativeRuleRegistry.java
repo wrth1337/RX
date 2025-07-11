@@ -1,0 +1,81 @@
+package engine;
+
+import ast.*;
+
+import java.util.List;
+import java.util.Optional;
+
+public class NativeRuleRegistry {
+
+    public static Optional<Expr> eval(Call call) {
+        String fn = call.function();
+        List<Expr> args = call.arguments();
+
+        // Numerische Ops (add, sub, mul, div, mod)
+        if (args.size() == 2) {
+            Expr left = args.get(0);
+            Expr right = args.get(1);
+
+            boolean isFloat = left instanceof FloatLiteral || right instanceof FloatLiteral;
+
+            if (isFloat) {
+                double a = (left instanceof FloatLiteral f) ? f.value() : ((IntLiteral) left).value();
+                double b = (right instanceof FloatLiteral f) ? f.value() : ((IntLiteral) right).value();
+
+                return switch (fn) {
+                    case "add" -> Optional.of(new FloatLiteral(a + b));
+                    case "sub" -> Optional.of(new FloatLiteral(a - b));
+                    case "mul" -> Optional.of(new FloatLiteral(a * b));
+                    case "div" -> Optional.of(new FloatLiteral(a / b));
+                    case "mod" -> Optional.of(new FloatLiteral(a % b));
+                    case "eq"  -> Optional.of(new BoolLiteral(a == b));
+                    case "lt"  -> Optional.of(new BoolLiteral(a < b));
+                    case "le"  -> Optional.of(new BoolLiteral(a <= b));
+                    case "gt"  -> Optional.of(new BoolLiteral(a > b));
+                    case "ge"  -> Optional.of(new BoolLiteral(a >= b));
+                    case "nq"  -> Optional.of(new BoolLiteral(a != b));
+                    default    -> Optional.empty();
+                };
+            }
+
+            if (left instanceof IntLiteral l && right instanceof IntLiteral r) {
+                return switch (fn) {
+                    case "add" -> Optional.of(new IntLiteral(l.value() + r.value()));
+                    case "sub" -> Optional.of(new IntLiteral(l.value() - r.value()));
+                    case "mul" -> Optional.of(new IntLiteral(l.value() * r.value()));
+                    case "div" -> Optional.of(new IntLiteral(l.value() / r.value()));
+                    case "mod" -> Optional.of(new IntLiteral(l.value() % r.value()));
+                    case "eq"  -> Optional.of(new BoolLiteral(l.value() == r.value()));
+                    case "lt"  -> Optional.of(new BoolLiteral(l.value() < r.value()));
+                    case "le"  -> Optional.of(new BoolLiteral(l.value() <= r.value()));
+                    case "gt"  -> Optional.of(new BoolLiteral(l.value() > r.value()));
+                    case "ge"  -> Optional.of(new BoolLiteral(l.value() >= r.value()));
+                    case "nq"  -> Optional.of(new BoolLiteral(l.value() != r.value()));
+                    default    -> Optional.empty();
+                };
+            }
+        }
+
+        // String Ops
+        if (fn.equals("concat") && args.size() == 2 &&
+                args.get(0) instanceof StringLiteral a && args.get(1) instanceof StringLiteral b) {
+            return Optional.of(new StringLiteral(a.value() + b.value()));
+        }
+
+        if (fn.equals("length") && args.size() == 1 && args.get(0) instanceof StringLiteral s) {
+            return Optional.of(new IntLiteral(s.value().length()));
+        }
+
+        if (fn.equals("charAt") && args.size() == 2 &&
+                args.get(0) instanceof StringLiteral s && args.get(1) instanceof IntLiteral i) {
+            return Optional.of(new CharLiteral(s.value().charAt(i.value())));
+        }
+
+        // Char Ops
+        if (fn.equals("toInt") && args.size() == 1 && args.get(0) instanceof CharLiteral c) {
+            return Optional.of(new IntLiteral(c.value()));
+        }
+
+        return Optional.empty();
+    }
+}
