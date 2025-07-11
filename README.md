@@ -23,10 +23,10 @@ The goal is not to build a production-ready language, but to study and experimen
 
 ### Currently WIP
 - Add a namespace system to the module system to improve organization and prevent naming conflicts.
+- Refactoring of REPL + Syntax-Highlighting
 
 ### Planned features
 - Debug-Mode -> Detailed logging of the entire process from the interpreter
-- Syntax-Highlighting for the REPL
 - Various modules that natively extend the functions of RX
   - More complex data structures such as lists
   - lambda calculus translators
