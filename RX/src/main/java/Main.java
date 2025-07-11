@@ -1,4 +1,5 @@
 import ast.*;
+import engine.RuleValidator;
 import modules.ModuleLoader;
 import engine.RewriteEngine;
 import eval.Evaluator;
@@ -9,9 +10,7 @@ import parser.Parser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
     static boolean traceMode = false;
@@ -44,7 +43,7 @@ public class Main {
                     System.err.println("Usage: rx -r");
                     System.exit(1);
                 }
-                //repl();
+                repl();
                 break;
             default:
                 System.err.println("Usage: rx [-i <file> | -r]");
@@ -121,132 +120,119 @@ public class Main {
         System.out.println("Program successfully rewritten.");
     }
 
-//    private static void repl() {
-//        //TODO: put in its own package...
-//        //TODO: Highlighting
-//
-//        Scanner scanner = new Scanner(System.in);
-//        String input;
-//
-//        List<Rule> rules = new ArrayList<>();
-//        RewriteEngine engine = new RewriteEngine(rules);
-//        Evaluator evaluator = new Evaluator(engine);
-//
-//        System.out.println("=== Welcome to the RX REPL ===");
-//        printHelp();
-//
-//        while (true) {
-//            System.out.print("> ");
-//            input = scanner.nextLine().trim();
-//
-//            switch (input) {
-//                case "\\q":
-//                    System.out.println("Exiting RX REPL... bye.");
-//                    return;
-//
-//                case "\\h":
-//                    printHelp();
-//                    break;
-//
-//                case "\\c":
-//                    rules.clear();
-//                    engine = new RewriteEngine(rules);
-//                    evaluator = new Evaluator(engine);
-//                    System.out.println("All rules cleared.");
-//                    break;
-//
-//                case "\\r":
-//                    if (rules.isEmpty()) {
-//                        System.out.println("No rules defined.");
-//                    } else {
-//                        System.out.println("=== Rules ===");
-//                        for (Rule rule : rules) {
-//                            System.out.println(rule);
-//                        }
-//                    }
-//                    break;
-//
-//                case "\\p":
-//                    try {
-//                        String preludeCode = Files.readString(Path.of("src/main/resources/Prelude.rx"));
-//                        Parser preludeParser = new Parser(new Lexer(preludeCode));
-//                        List<TopLevelItem> preludeItems = preludeParser.parse();
-//
-//                        for (TopLevelItem item : preludeItems) {
-//                            if (item instanceof Rule rule) {
-//                                rules.add(rule);
-//                            }
-//                        }
-//
-//                        engine = new RewriteEngine(rules);
-//                        evaluator = new Evaluator(engine);
-//                        System.out.println("Prelude loaded.");
-//                    } catch (IOException e) {
-//                        System.err.println("Failed to load prelude: " + e.getMessage());
-//                    }
-//                    break;
-//
-//                case "\\t":
-//                    traceMode = !traceMode;
-//                    System.out.printf("Trace mode set to %s%n", traceMode ? "on" : "off");
-//                    break;
-//
-//                default:
-//                    try {
-//                        Parser parser = new Parser(new Lexer(input));
-//                        List<TopLevelItem> items = parser.parse();
-//
-//                        for (TopLevelItem item : items) {
-//                            if (item instanceof Rule rule) {
-//                                try {
-//                                    List<Rule> newRules = new ArrayList<>(rules);
-//                                    newRules.add(rule);
-//                                    RuleValidator.ensureNoDuplicates(newRules);
-//                                    rules = newRules;
-//                                    engine = new RewriteEngine(rules);
-//                                    evaluator = new Evaluator(engine);
-//                                    System.out.println("Rule added: " + rule);
-//                                } catch (Exception e) {
-//                                    System.err.println(e.getMessage());
-//                                    System.err.println("Rule not added.");
-//                                }
-//
-//                            } else if (item instanceof Expr expr) {
-//                                if (traceMode) {
-//                                    List<String> trace = new ArrayList<>();
-//                                    Expr result = evaluator.evaluateWithTrace(expr, trace);
-//                                    System.out.println();
-//                                    for (String s : trace) {
-//                                        System.out.println(s);
-//                                    }
-//                                    System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
-//                                } else {
-//                                    Expr result = evaluator.evaluate(expr);
-//                                    System.out.printf("// %s\n%s\n\n", expr, result);
-//                                }
-//                            } else if (item instanceof Import imp) {
-//                                try {
-//                                    List<Rule> newRules = new ArrayList<>(rules);
-//                                    ModuleLoaderBACKUP loader = new ModuleLoaderBACKUP();
-//                                    List<Rule> importedRules = loader.loadModuleForREPL(imp.module());
-//                                    newRules.addAll(importedRules);
-//                                    RuleValidator.ensureNoDuplicates(newRules);
-//                                    rules = newRules;
-//                                    engine = new RewriteEngine(rules);
-//                                    evaluator = new Evaluator(engine);
-//                                    System.out.println("Module imported: " + imp.module());
-//                                } catch (Exception e) {
-//                                    System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
-//                                }
-//                            }
-//                        }
-//                    } catch (RuntimeException e) {
-//                        System.err.println("Parse or evaluation error: " + e.getMessage());
-//                    }
-//                    break;
-//            }
-//        }
-//    }
+    private static void repl() {
+        //TODO: put in its own package...
+        //TODO: Highlighting
+
+        Scanner scanner = new Scanner(System.in);
+        String input;
+
+        ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
+
+        List<Import> rootImports = new ArrayList<>();
+        List<Rule> rootRules = new ArrayList<>();
+        Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);
+        RewriteEngine engine = new RewriteEngine(namespaces);
+        Evaluator evaluator = new Evaluator(engine);
+
+        System.out.println("=== Welcome to the RX REPL ===");
+        printHelp();
+
+        while (true) {
+            System.out.print("> ");
+            input = scanner.nextLine().trim();
+
+            switch (input) {
+                case "\\q":
+                    System.out.println("Exiting RX REPL... bye.");
+                    return;
+
+                case "\\h":
+                    printHelp();
+                    break;
+
+                case "\\c":
+                    rootRules.clear();
+                    rootImports.clear();
+                    namespaces = loader.loadAll(rootRules, rootImports);
+                    engine = new RewriteEngine(namespaces);
+                    evaluator = new Evaluator(engine);
+                    System.out.println("All rules cleared.");
+                    break;
+
+                case "\\r":
+                    if (namespaces.isEmpty()) {
+                        System.out.println("No rules defined.");
+                    } else {
+                        System.out.println("=== Rules ===");
+                        for (Namespace namespace : namespaces.values()) {
+                            System.out.println("Namespace: " + namespace.name());
+                            for (Rule rule : namespace.rules()) {
+                                System.out.println(rule);
+                            }
+                            System.out.println();
+                        }
+                    }
+                    break;
+
+                case "\\t":
+                    traceMode = !traceMode;
+                    System.out.printf("Trace mode set to %s%n", traceMode ? "on" : "off");
+                    break;
+
+                default:
+                    try {
+                        Parser parser = new Parser(new Lexer(input));
+                        List<TopLevelItem> items = parser.parse();
+
+                        for (TopLevelItem item : items) {
+                            if (item instanceof Rule rule) {
+                                try {
+                                    List<Rule> newRules = new ArrayList<>(namespaces.get("Main").rules());
+                                    newRules.add(rule);
+                                    RuleValidator.ensureNoDuplicates(newRules);
+                                    namespaces.get("Main").rules().add(rule);
+                                    engine = new RewriteEngine(namespaces);
+                                    evaluator = new Evaluator(engine);
+                                    System.out.println("Rule added: " + rule);
+                                } catch (Exception e) {
+                                    System.err.println(e.getMessage());
+                                    System.err.println("Rule not added.");
+                                }
+
+                            } else if (item instanceof Expr expr) {
+                                if (traceMode) {
+                                    List<String> trace = new ArrayList<>();
+                                    Expr result = evaluator.evaluateWithTrace(expr, trace, "Main");
+                                    System.out.println();
+                                    for (String s : trace) {
+                                        System.out.println(s);
+                                    }
+                                    System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
+                                } else {
+                                    Expr result = evaluator.evaluate(expr, "Main");
+                                    System.out.printf("// %s\n%s\n\n", expr, result);
+                                }
+                            } else if (item instanceof Import imp) {
+                                try {
+                                    rootImports.add(imp);
+                                    //TODO: New rulevalidation
+                                    namespaces = loader.loadAll(rootRules, rootImports);
+                                    engine = new RewriteEngine(namespaces);
+                                    evaluator = new Evaluator(engine);
+                                    System.out.println("Module imported: " + imp.module());
+                                } catch (Exception e) {
+                                    System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
+                                }
+                            }
+                        }
+                    } catch (RuntimeException e) {
+                        System.err.println("Parse or evaluation error: " + e.getMessage());
+                    }
+                    break;
+            }
+        }
+    }
 
 
     private static void printHelp() {
@@ -254,7 +240,6 @@ public class Main {
         System.out.println("Type '\\h' for help.");
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all rules.");
-        System.out.println("Type '\\p' to load the prelude.");
         System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
     }
 }
