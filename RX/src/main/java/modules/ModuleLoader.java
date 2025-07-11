@@ -1,92 +1,126 @@
 package modules;
 
-import ast.*;
+import ast.Expr;
+import ast.Import;
+import ast.Rule;
+import ast.TopLevelItem;
 import lexer.Lexer;
 import parser.Parser;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModuleLoader {
 
-    private final Path userModulesBase = Paths.get("modules");
-    private final Set<String> loadedModules = new HashSet<>();
-    private final List<Rule> allRules = new ArrayList<>();
+    private final Map<String, Namespace> loadedModules = new HashMap<>();
 
-    public List<Rule> loadModules(List<Import> rootImports) {
-        for (Import imp : rootImports) {
-            loadModule(imp.module());
-        }
-        return allRules;
+    private final Path userModulesPath;
+
+    public ModuleLoader(Path userModulesPath) {
+        this.userModulesPath = userModulesPath;
     }
 
-    public List<Rule> loadModuleForREPL(String moduleName) {
-        loadModule(moduleName);
-        return allRules;
+    public Map<String, Namespace> loadAll(List<Rule> mainRules, List<Import> mainImports) {
+        loadPrelude();
+        Namespace mainNamespace = registerMain(mainRules, mainImports);
+
+        for (Import importModule : mainNamespace.imports()) {
+            if (loadedModules.containsKey(importModule.module())) {
+                continue;
+            }
+            Namespace imported = parseModuleFile(importModule.module());
+            loadedModules.put(importModule.module(), imported);
+        }
+
+        return loadedModules;
     }
 
-    private void loadModule(String moduleName) {
-        if (loadedModules.contains(moduleName)) {
-            return;
-        }
+    private void loadPrelude() {
+        Namespace prelude = parseModuleFile("Prelude");
+        loadedModules.put("Prelude", prelude);
+    }
 
-        boolean loadedInternal = false;
-        boolean loadedExternal = false;
+    private Namespace registerMain(List<Rule> mainRules, List<Import> mainImports) {
+        Namespace main = new Namespace("Main", mainRules, mainImports);
+        loadedModules.put("Main", main);
+        return main;
+    }
 
-        // Search module in internal modules
-        InputStream in = getClass().getResourceAsStream("/modules/" + moduleName + ".rx");
-        if (in != null) {
-            parseModuleStream(moduleName, in);
-            loadedInternal = true;
-        }
+    private Namespace parseModuleFile(String moduleName) {
+        String sourceCode = readModuleSource(moduleName);
+        Parser parser = new Parser(new Lexer(sourceCode));
+        List<TopLevelItem> items = parser.parse();
 
-        // Search module in user modules
-        Path userPath = userModulesBase.resolve(moduleName + ".rx");
-        if (Files.exists(userPath)) {
-            try {
-                InputStream userIn = Files.newInputStream(userPath);
-                parseModuleStream(moduleName, userIn);
-                loadedExternal = true;
-            } catch (IOException e) {
-                throw new RuntimeException("Error reading user module: " + userPath, e);
+        List<Import> imports = new ArrayList<>();
+        List<Rule> rules = new ArrayList<>();
+        for (TopLevelItem item : items) {
+            if (item instanceof Rule rule) {
+                rules.add(rule);
+            } else if (item instanceof Expr) {
+                throw new RuntimeException("Invalid item in module '" + moduleName + "': Only imports and rules allowed!");
+            } else if (item instanceof Import imp) {
+                if (!loadedModules.containsKey(imp.module())) {
+                    Namespace imported = parseModuleFile(imp.module());
+                    loadedModules.put(imp.module(), imported);
+                }
+                imports.add(imp);
             }
         }
-
-        if (!loadedInternal && !loadedExternal) {
-            throw new RuntimeException("Module not found: " + moduleName);
-        }
-        if (loadedInternal && loadedExternal) {
-            throw new RuntimeException("Duplicate module name (internal & user): " + moduleName);
-        }
-
-        loadedModules.add(moduleName);
+        return new Namespace(moduleName, rules, imports);
     }
 
-    private void parseModuleStream(String moduleName, InputStream in) {
-        try (in) {
-            String source = new String(in.readAllBytes());
-            Parser parser = new Parser(new Lexer(source));
-            List<TopLevelItem> items = parser.parse();
+    private String readModuleSource(String moduleName) {
+        String resourcePath;
 
-            List<Import> nestedImports = new ArrayList<>();
-            for (TopLevelItem item : items) {
-                if (item instanceof Import imp) {
-                    nestedImports.add(imp);
-                } else if (item instanceof Rule rule) {
-                    allRules.add(rule);
-                } else {
-                    throw new RuntimeException(
-                            "Invalid item in module '" + moduleName + "': Only imports and rules allowed!");
+        if (moduleName.equals("Prelude")) {
+            resourcePath = "/prelude/Prelude.rx";
+        } else {
+            // 1. Try internal modules first: /modules/ModuleName.rx
+            resourcePath = "/modules/" + moduleName + ".rx";
+            InputStream in = getClass().getResourceAsStream(resourcePath);
+            if (in != null) {
+                return readInputStream(in);
+            }
+
+            // 2. Otherwise look in user modules folder
+            Path userModulePath = userModulesPath.resolve(moduleName + ".rx");
+            if (Files.exists(userModulePath)) {
+                try {
+                    return Files.readString(userModulePath);
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not read user module: " + moduleName, e);
                 }
             }
 
-            for (Import nested : nestedImports) {
-                loadModule(nested.module());
-            }
+            throw new RuntimeException("Module not found: " + moduleName);
+        }
 
+        // Load Prelude (always internal)
+        InputStream in = getClass().getResourceAsStream(resourcePath);
+        if (in == null) {
+            throw new RuntimeException("Prelude not found at " + resourcePath);
+        }
+        return readInputStream(in);
+    }
+
+    private String readInputStream(InputStream in) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+            return sb.toString();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to parse module: " + moduleName, e);
+            throw new RuntimeException("Could not read resource input stream", e);
         }
     }
 }
