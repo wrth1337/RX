@@ -29,6 +29,7 @@ public class ModuleLoader {
     }
 
     public Map<String, Namespace> loadAll(List<Rule> mainRules, List<Import> mainImports) {
+        loadedModules.clear();
         loadPrelude();
         Namespace mainNamespace = registerMain(mainRules, mainImports);
 
