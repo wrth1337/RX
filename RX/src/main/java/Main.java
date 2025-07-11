@@ -92,6 +92,8 @@ public class Main {
         Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);
 
 
+        RuleValidator.checkNamespaces(namespaces);
+
         // Load Engine
         RewriteEngine engine = new RewriteEngine(namespaces);
         Evaluator evaluator = new Evaluator(engine);
@@ -190,7 +192,7 @@ public class Main {
                                 try {
                                     List<Rule> newRules = new ArrayList<>(namespaces.get("Main").rules());
                                     newRules.add(rule);
-                                    RuleValidator.ensureNoDuplicates(newRules);
+                                    RuleValidator.checkRules(newRules, "Main");
                                     namespaces.get("Main").rules().add(rule);
                                     engine = new RewriteEngine(namespaces);
                                     evaluator = new Evaluator(engine);
