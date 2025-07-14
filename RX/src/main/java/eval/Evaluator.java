@@ -3,6 +3,7 @@ package eval;
 import ast.*;
 import engine.RewriteEngine;
 import engine.RewriteResult;
+import repl.Highlighter;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,12 +79,17 @@ public class Evaluator {
             Optional<RewriteResult> rewritten = engine.rewriteWithRule(reducedCall, context);
             if (rewritten.isPresent() && !rewritten.get().result().equals(expr)) {
                 RewriteResult rr = rewritten.get();
+                String highlightedReducedCall = Highlighter.highlight(reducedCall.toString());
+                String highlightedRule = Highlighter.highlight(rr.rule().toString());
+                String highlightedResult = Highlighter.highlight(rr.result().toString());
+                String highlitedContext = Highlighter.highlight(namespace);
+
                 trace.add("[%d] Expression: %s\n     Context: %s\n     Rule: %s\n     Result: %s".formatted(
                         trace.size() + 1,
-                        reducedCall,
-                        namespace,
-                        rr.rule(),
-                        rr.result()
+                        highlightedReducedCall,
+                        highlitedContext,
+                        highlightedRule,
+                        highlightedResult
                 ));
                 return evaluateWithTrace(rewritten.get().result(), trace, namespace);
             }
