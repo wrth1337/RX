@@ -70,7 +70,7 @@ public class Repl {
                 break;
             case "\\h":
                 highlighting = !highlighting;
-                System.out.println("Highlighting set to " + (highlighting ? "on" : "off"));
+                System.out.println("Highlighting set to " + (highlighting ? "on" : "off") + "\n");
                 break;
             case "\\?":
                 printHelp();
@@ -83,7 +83,7 @@ public class Repl {
                 break;
             case "\\t":
                 traceMode = !traceMode;
-                System.out.println("Trace mode set to " + (traceMode ? "on" : "off"));
+                System.out.println("Trace mode set to " + (traceMode ? "on" : "off") + "\n");
                 break;
             default:
                 System.out.println("Unknown command: " + input);
@@ -98,6 +98,7 @@ public class Repl {
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all available rules.");
         System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
+        System.out.println();
     }
 
     private void clearRules() {
@@ -145,7 +146,7 @@ public class Repl {
             }
         } catch (RuntimeException e) {
             String message = "\u001B[0;31m" + "Parse or evaluation error: " + "\u001B[0m";
-            System.out.println(message + e.getMessage());
+            System.out.println(message + e.getMessage() + "\n");
         }
     }
 
