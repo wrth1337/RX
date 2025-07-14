@@ -22,10 +22,9 @@ The goal is not to build a production-ready language, but to study and experimen
 - Dynamic loading of individual modules, outsourcing of rule sets to independent modules, differentiation between internal and custom modules, and each module having its own namespace.
 
 ### Currently WIP
-- Add Unit-Tests (For the interpreter/REPL)
+- Interpreter Refactoring + Debug-Mode (Detailed logging of the entire process from the interpreter)
 
 ### Planned features
-- Debug-Mode -> Detailed logging of the entire process from the interpreter
 - Various modules that natively extend the functions of RX
   - More complex data structures such as lists
   - lambda calculus translators
