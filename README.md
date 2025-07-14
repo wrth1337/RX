@@ -22,7 +22,12 @@ The goal is not to build a production-ready language, but to study and experimen
 - Dynamic loading of individual modules, outsourcing of rule sets to independent modules, differentiation between internal and custom modules, and each module having its own namespace.
 
 ### Currently WIP
-- Interpreter Refactoring + Debug-Mode (Detailed logging of the entire process from the interpreter)
+- Providing more “syntactic sugar”
+  - Is converted internally by the parser into a call of rewrite rules
+  - Possible:
+    - ```[]``` -> Easier creation of lists
+    - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
+    - ```"Hello, ${name}!"``` -> String-Interpolation
 
 ### Planned features
 - Various modules that natively extend the functions of RX
@@ -33,12 +38,6 @@ The goal is not to build a production-ready language, but to study and experimen
   - unit-test framework + Testmode in the interpreter
   - Converter for units of measurement
   - ...
-- Providing more “syntactic sugar”
-  - Is converted internally by the parser into a call of rewrite rules
-  - Possible:
-    - ```[]``` -> Easier creation of lists
-    - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
-    - ```"Hello, ${name}!"``` -> String-Interpolation
 - Ideas for possible further features are constantly emerging :)
 
 ## Examples
