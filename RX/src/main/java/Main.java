@@ -6,6 +6,7 @@ import eval.Evaluator;
 import lexer.Lexer;
 import modules.Namespace;
 import parser.Parser;
+import repl.Repl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,8 +14,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class Main {
-    static boolean traceMode = false;
-
     public static void main(String[] args) throws IOException {
         //TODO: Add more args/flags such as verbose mode, debug mode, repl(?) etc...
         //TODO: Metaprogramming -> Rules can have Rules as parameters -> OOP?
@@ -43,7 +42,8 @@ public class Main {
                     System.err.println("Usage: rx -r");
                     System.exit(1);
                 }
-                repl();
+                Repl repl = new Repl();
+                repl.start();
                 break;
             default:
                 System.err.println("Usage: rx [-i <file> | -r]");
@@ -120,136 +120,5 @@ public class Main {
 
         System.out.println("All expressions written to: " + outFile);
         System.out.println("Program successfully rewritten.");
-    }
-
-    private static void repl() {
-        //TODO: put in its own package...
-        //TODO: Highlighting
-
-        Scanner scanner = new Scanner(System.in);
-        String input;
-
-        ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
-
-        List<Import> rootImports = new ArrayList<>();
-        List<Rule> rootRules = new ArrayList<>();
-        Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);
-        RewriteEngine engine = new RewriteEngine(namespaces);
-        Evaluator evaluator = new Evaluator(engine);
-
-        System.out.println("=== Welcome to the RX REPL ===");
-        printHelp();
-
-        while (true) {
-            System.out.print("> ");
-            input = scanner.nextLine().trim();
-
-            switch (input) {
-                case "\\q":
-                    System.out.println("Exiting RX REPL... bye.");
-                    return;
-
-                case "\\h":
-                    printHelp();
-                    break;
-
-                case "\\c":
-                    rootRules.clear();
-                    rootImports.clear();
-                    namespaces = loader.loadAll(rootRules, rootImports);
-                    engine = new RewriteEngine(namespaces);
-                    evaluator = new Evaluator(engine);
-                    System.out.println("All rules cleared.");
-                    break;
-
-                case "\\r":
-                    List<String> importedModules = new ArrayList<>(namespaces.get("Main").imports().stream().map(Import::module).toList());
-                    importedModules.add("Prelude");
-                    importedModules.add("Main");
-                    List<Namespace> availableNamespaces = new ArrayList<>(namespaces.values().stream().filter(ns -> importedModules.contains(ns.name())).toList());
-                    if (availableNamespaces.isEmpty()) {
-                        System.out.println("No rules defined.");
-                    } else {
-                        System.out.println("=== Rules ===");
-                        for (Namespace namespace : availableNamespaces) {
-                            System.out.println("Namespace: " + namespace.name());
-                            for (Rule rule : namespace.rules()) {
-                                System.out.println(rule);
-                            }
-                            System.out.println();
-                        }
-                    }
-                    break;
-
-                case "\\t":
-                    traceMode = !traceMode;
-                    System.out.printf("Trace mode set to %s%n", traceMode ? "on" : "off");
-                    break;
-
-                default:
-                    try {
-                        Parser parser = new Parser(new Lexer(input));
-                        List<TopLevelItem> items = parser.parse();
-
-                        for (TopLevelItem item : items) {
-                            if (item instanceof Rule rule) {
-                                try {
-                                    List<Rule> newRules = new ArrayList<>(namespaces.get("Main").rules());
-                                    newRules.add(rule);
-                                    RuleValidator.checkRules(newRules, "Main");
-                                    namespaces.get("Main").rules().add(rule);
-                                    engine = new RewriteEngine(namespaces);
-                                    evaluator = new Evaluator(engine);
-                                    System.out.println("Rule added: " + rule);
-                                } catch (Exception e) {
-                                    System.err.println(e.getMessage());
-                                    System.err.println("Rule not added.");
-                                }
-
-                            } else if (item instanceof Expr expr) {
-                                if (traceMode) {
-                                    List<String> trace = new ArrayList<>();
-                                    Expr result = evaluator.evaluateWithTrace(expr, trace, "Main");
-                                    System.out.println();
-                                    for (String s : trace) {
-                                        System.out.println(s);
-                                    }
-                                    System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
-                                } else {
-                                    Expr result = evaluator.evaluate(expr, "Main");
-                                    System.out.printf("// %s\n%s\n\n", expr, result);
-                                }
-                            } else if (item instanceof Import imp) {
-                                //TODO: needs to be optimized -> REPL Refactoring
-                                try {
-                                    rootImports.add(imp);
-                                    namespaces = loader.loadAll(rootRules, rootImports);
-                                    engine = new RewriteEngine(namespaces);
-                                    evaluator = new Evaluator(engine);
-                                    System.out.println("Module imported: " + imp.module());
-                                } catch (Exception e) {
-                                    rootImports.remove(imp);
-                                    namespaces = loader.loadAll(rootRules, rootImports);
-                                    engine = new RewriteEngine(namespaces);
-                                    evaluator = new Evaluator(engine);
-                                    System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
-                                }
-                            }
-                        }
-                    } catch (RuntimeException e) {
-                        System.err.println("Parse or evaluation error: " + e.getMessage());
-                    }
-                    break;
-            }
-        }
-    }
-
-
-    private static void printHelp() {
-        System.out.println("Type '\\q' to quit.");
-        System.out.println("Type '\\h' for help.");
-        System.out.println("Type '\\c' to clear all rules.");
-        System.out.println("Type '\\r' to show all rules.");
-        System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
     }
 }

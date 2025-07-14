@@ -22,7 +22,7 @@ The goal is not to build a production-ready language, but to study and experimen
 - Dynamic loading of individual modules, outsourcing of rule sets to independent modules, differentiation between internal and custom modules, and each module having its own namespace.
 
 ### Currently WIP
-- Refactoring of REPL + Syntax-Highlighting
+- Add Unit-Tests (For the interpreter/REPL)
 
 ### Planned features
 - Debug-Mode -> Detailed logging of the entire process from the interpreter

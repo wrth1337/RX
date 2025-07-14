@@ -14,7 +14,7 @@ public class NativeRuleRegistry {
         //String Operations
         if (fn.equals("concat") && args.size() == 2 &&
                 args.get(0) instanceof Literal a && args.get(1) instanceof Literal b) {
-            return Optional.of(new StringLiteral(a + b.toString()));
+            return Optional.of(new StringLiteral(a.asRawString() + b.asRawString()));
         }
 
         if (fn.equals("length") && args.size() == 1 && args.get(0) instanceof StringLiteral s) {

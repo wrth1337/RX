@@ -5,4 +5,9 @@ public record BoolLiteral(boolean value) implements Literal {
     public String toString(){
         return String.valueOf(value);
     }
+
+    @Override
+    public String asRawString() {
+        return String.valueOf(value);
+    }
 }

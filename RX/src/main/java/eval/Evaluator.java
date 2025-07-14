@@ -49,7 +49,7 @@ public class Evaluator {
         return expr;
     }
 
-    public Expr evaluateWithTrace(Expr expr, List<String> trace, String context) {
+    public Expr evaluateWithTrace(Expr expr, List<TraceEntry> trace, String context) {
         if (expr instanceof BinaryOp bin) {
             String fname = switch (bin.op()) {
                 case ADD -> "add";
@@ -78,13 +78,7 @@ public class Evaluator {
             Optional<RewriteResult> rewritten = engine.rewriteWithRule(reducedCall, context);
             if (rewritten.isPresent() && !rewritten.get().result().equals(expr)) {
                 RewriteResult rr = rewritten.get();
-                trace.add("[%d] Expression: %s\n     Context: %s\n     Rule: %s\n     Result: %s".formatted(
-                        trace.size() + 1,
-                        reducedCall,
-                        namespace,
-                        rr.rule(),
-                        rr.result()
-                ));
+                trace.add(new TraceEntry(trace.size()+1, reducedCall.toString(), context, rr.rule().toString(), rr.result().toString()));
                 return evaluateWithTrace(rewritten.get().result(), trace, namespace);
             }
         }
