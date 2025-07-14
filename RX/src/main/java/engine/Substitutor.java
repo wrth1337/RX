@@ -16,7 +16,7 @@ public class Substitutor {
             List<Expr> newArgs = call.arguments().stream()
                     .map(arg -> substitute(arg, bindings))
                     .toList();
-            return new Call(call.function(), newArgs);
+            return new Call(call.namespace(), call.function(), newArgs);
         }
 
         if (expr instanceof BinaryOp bin) {

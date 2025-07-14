@@ -38,6 +38,13 @@ public class Lexer {
             case ')': nextChar(); return new Token(TokenType.RPAREN, ")");
             case ',': nextChar(); return new Token(TokenType.COMMA, ",");
             case '_': nextChar(); return new Token(TokenType.WILDCARD, "_");
+            case '.':
+                if (Character.isDigit(peekChar())) {
+                    return readNumberLiteral();
+                } else {
+                    nextChar();
+                    return new Token(TokenType.DOT, ".");
+                }
             case '=': {
                 nextChar();
                 if (currentChar == '=') {

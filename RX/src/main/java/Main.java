@@ -1,17 +1,16 @@
 import ast.*;
-import engine.ModuleLoader;
-import engine.RewriteEngine;
 import engine.RuleValidator;
+import modules.ModuleLoader;
+import engine.RewriteEngine;
 import eval.Evaluator;
 import lexer.Lexer;
+import modules.Namespace;
 import parser.Parser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     static boolean traceMode = false;
@@ -69,12 +68,9 @@ public class Main {
             System.exit(1);
         }
 
-        // Load prelude
-        String preludeCode = Files.readString(Path.of("src/main/resources/rx_prelude.rx"));
-        String fullCode = preludeCode + "\n" + code;
 
-        // Parse the whole sourcecode
-        Parser parser = new Parser(new Lexer(fullCode));
+        // Parse sourcecode
+        Parser parser = new Parser(new Lexer(code));
         List<TopLevelItem> items = parser.parse();
 
         List<Import> rootImports = new ArrayList<>();
@@ -91,19 +87,15 @@ public class Main {
         }
 
         // Load all imports
-        ModuleLoader loader = new ModuleLoader();
-        List<Rule> allImportedRules = loader.loadModules(rootImports);
+        ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
 
-        // Fuse rootRoles and importedRules
-        List<Rule> allRules = new ArrayList<>();
-        allRules.addAll(allImportedRules);
-        allRules.addAll(rootRules);
+        Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);
 
-        // Check rules for duplicates
-        RuleValidator.ensureNoDuplicates(allRules);
+
+        RuleValidator.checkNamespaces(namespaces);
 
         // Load Engine
-        RewriteEngine engine = new RewriteEngine(allRules);
+        RewriteEngine engine = new RewriteEngine(namespaces);
         Evaluator evaluator = new Evaluator(engine);
 
         // Evaluation
@@ -111,7 +103,7 @@ public class Main {
 
         for (int i = 0; i < expressions.size(); i++) {
             Expr original = expressions.get(i);
-            Expr result = evaluator.evaluate(original);
+            Expr result = evaluator.evaluate(original, "Main");
 
             outputBuilder
                     .append("// Expression ").append(i + 1).append(" - ").append(original).append(":\n")
@@ -137,8 +129,12 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String input;
 
-        List<Rule> rules = new ArrayList<>();
-        RewriteEngine engine = new RewriteEngine(rules);
+        ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
+
+        List<Import> rootImports = new ArrayList<>();
+        List<Rule> rootRules = new ArrayList<>();
+        Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);
+        RewriteEngine engine = new RewriteEngine(namespaces);
         Evaluator evaluator = new Evaluator(engine);
 
         System.out.println("=== Welcome to the RX REPL ===");
@@ -158,40 +154,30 @@ public class Main {
                     break;
 
                 case "\\c":
-                    rules.clear();
-                    engine = new RewriteEngine(rules);
+                    rootRules.clear();
+                    rootImports.clear();
+                    namespaces = loader.loadAll(rootRules, rootImports);
+                    engine = new RewriteEngine(namespaces);
                     evaluator = new Evaluator(engine);
                     System.out.println("All rules cleared.");
                     break;
 
                 case "\\r":
-                    if (rules.isEmpty()) {
+                    List<String> importedModules = new ArrayList<>(namespaces.get("Main").imports().stream().map(Import::module).toList());
+                    importedModules.add("Prelude");
+                    importedModules.add("Main");
+                    List<Namespace> availableNamespaces = new ArrayList<>(namespaces.values().stream().filter(ns -> importedModules.contains(ns.name())).toList());
+                    if (availableNamespaces.isEmpty()) {
                         System.out.println("No rules defined.");
                     } else {
                         System.out.println("=== Rules ===");
-                        for (Rule rule : rules) {
-                            System.out.println(rule);
-                        }
-                    }
-                    break;
-
-                case "\\p":
-                    try {
-                        String preludeCode = Files.readString(Path.of("src/main/resources/rx_prelude.rx"));
-                        Parser preludeParser = new Parser(new Lexer(preludeCode));
-                        List<TopLevelItem> preludeItems = preludeParser.parse();
-
-                        for (TopLevelItem item : preludeItems) {
-                            if (item instanceof Rule rule) {
-                                rules.add(rule);
+                        for (Namespace namespace : availableNamespaces) {
+                            System.out.println("Namespace: " + namespace.name());
+                            for (Rule rule : namespace.rules()) {
+                                System.out.println(rule);
                             }
+                            System.out.println();
                         }
-
-                        engine = new RewriteEngine(rules);
-                        evaluator = new Evaluator(engine);
-                        System.out.println("Prelude loaded.");
-                    } catch (IOException e) {
-                        System.err.println("Failed to load prelude: " + e.getMessage());
                     }
                     break;
 
@@ -208,11 +194,11 @@ public class Main {
                         for (TopLevelItem item : items) {
                             if (item instanceof Rule rule) {
                                 try {
-                                    List<Rule> newRules = new ArrayList<>(rules);
+                                    List<Rule> newRules = new ArrayList<>(namespaces.get("Main").rules());
                                     newRules.add(rule);
-                                    RuleValidator.ensureNoDuplicates(newRules);
-                                    rules = newRules;
-                                    engine = new RewriteEngine(rules);
+                                    RuleValidator.checkRules(newRules, "Main");
+                                    namespaces.get("Main").rules().add(rule);
+                                    engine = new RewriteEngine(namespaces);
                                     evaluator = new Evaluator(engine);
                                     System.out.println("Rule added: " + rule);
                                 } catch (Exception e) {
@@ -223,28 +209,29 @@ public class Main {
                             } else if (item instanceof Expr expr) {
                                 if (traceMode) {
                                     List<String> trace = new ArrayList<>();
-                                    Expr result = evaluator.evaluateWithTrace(expr, trace);
+                                    Expr result = evaluator.evaluateWithTrace(expr, trace, "Main");
                                     System.out.println();
                                     for (String s : trace) {
                                         System.out.println(s);
                                     }
                                     System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
                                 } else {
-                                    Expr result = evaluator.evaluate(expr);
+                                    Expr result = evaluator.evaluate(expr, "Main");
                                     System.out.printf("// %s\n%s\n\n", expr, result);
                                 }
                             } else if (item instanceof Import imp) {
+                                //TODO: needs to be optimized -> REPL Refactoring
                                 try {
-                                    List<Rule> newRules = new ArrayList<>(rules);
-                                    ModuleLoader loader = new ModuleLoader();
-                                    List<Rule> importedRules = loader.loadModuleForREPL(imp.module());
-                                    newRules.addAll(importedRules);
-                                    RuleValidator.ensureNoDuplicates(newRules);
-                                    rules = newRules;
-                                    engine = new RewriteEngine(rules);
+                                    rootImports.add(imp);
+                                    namespaces = loader.loadAll(rootRules, rootImports);
+                                    engine = new RewriteEngine(namespaces);
                                     evaluator = new Evaluator(engine);
                                     System.out.println("Module imported: " + imp.module());
                                 } catch (Exception e) {
+                                    rootImports.remove(imp);
+                                    namespaces = loader.loadAll(rootRules, rootImports);
+                                    engine = new RewriteEngine(namespaces);
+                                    evaluator = new Evaluator(engine);
                                     System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
                                 }
                             }
@@ -263,7 +250,6 @@ public class Main {
         System.out.println("Type '\\h' for help.");
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all rules.");
-        System.out.println("Type '\\p' to load the prelude.");
         System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
     }
 }

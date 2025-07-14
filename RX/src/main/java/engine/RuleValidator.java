@@ -1,21 +1,28 @@
 package engine;
 
 import ast.*;
+import modules.Namespace;
 
 import java.util.List;
+import java.util.Map;
 
 public class RuleValidator {
 
-    public static void ensureNoDuplicates(List<Rule> rules) {
+    public static void checkRules(List<Rule> rules, String namespaceName) {
         for (int i = 0; i < rules.size(); i++) {
             for (int j = i + 1; j < rules.size(); j++) {
                 Rule a = rules.get(i);
                 Rule b = rules.get(j);
-
                 if (isDuplicate(a, b)) {
-                    throw new RuntimeException("Duplicate rule detected:\n" + a + "\n" + b);
+                    throw new RuntimeException("Duplicate rule detected in namespace '" + namespaceName + "':\n" + a + "\n" + b);
                 }
             }
+        }
+    }
+
+    public static void checkNamespaces(Map<String, Namespace> namespaces) {
+        for (Map.Entry<String, Namespace> entry : namespaces.entrySet()) {
+            checkRules(entry.getValue().rules(), entry.getKey());
         }
     }
 
