@@ -48,9 +48,13 @@ public class Highlighter {
                     parenDepth++;
                     break;
                 case RPAREN:
-                    parenDepth--;
-                    sb.append(BRACKET_COLORS[Math.floorMod(parenDepth, BRACKET_COLORS.length)])
-                            .append(lexeme).append(RESET);
+                    if (parenDepth == 0) {
+                        sb.append(RED).append(lexeme).append(RESET);
+                    } else {
+                        parenDepth--;
+                        sb.append(BRACKET_COLORS[parenDepth % BRACKET_COLORS.length])
+                                .append(lexeme).append(RESET);
+                    }
                     break;
                 case IDENTIFIER:
                     sb.append(WHITE).append(lexeme).append(RESET);
