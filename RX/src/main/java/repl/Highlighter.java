@@ -65,22 +65,22 @@ public class Highlighter {
                     sb.append(GREEN).append(lexeme).append(RESET);
                     break;
                 case PLUS: case MINUS: case MULT: case DIV: case MOD:
-                    sb.append(GREEN).append(lexeme).append(RESET);
+                    sb.append(GREEN).append(" ").append(lexeme).append(" ").append(RESET);
                     break;
                 case EQ: case GE: case LE: case GT: case LT: case NQ:
-                    sb.append(BLUE).append(lexeme).append(RESET);
+                    sb.append(BLUE).append(" ").append(lexeme).append(" ").append(RESET);
                     break;
                 case IMPORT: case DEF:
-                    sb.append(BLUE).append(lexeme).append(RESET);
+                    sb.append(BLUE).append(lexeme).append(" ").append(RESET);
                     break;
                 case COMMA:
-                    sb.append(WHITE).append(lexeme).append(RESET);
+                    sb.append(WHITE).append(lexeme).append(" ").append(RESET);
                     break;
                 case WILDCARD:
                     sb.append(GREEN).append(lexeme).append(RESET);
                     break;
                 case ARROW: case ASSIGN:
-                    sb.append(BLUE).append(lexeme).append(RESET);
+                    sb.append(BLUE).append(" ").append(lexeme).append(" ").append(RESET);
                     break;
                 case ERROR:
                     sb.append(RED).append(lexeme).append(RESET);

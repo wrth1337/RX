@@ -149,7 +149,8 @@ public class Repl {
             namespaces.get("Main").rules().add(rule);
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
-            System.out.println("Rule added: " + rule);
+            String highlightedRule = Highlighter.highlight(rule.toString());
+            System.out.println("Rule added: " + highlightedRule);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.err.println("Rule not added.");
@@ -179,13 +180,15 @@ public class Repl {
             namespaces = loader.loadAll(rootRules, rootImports);
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
-            System.out.println("Module imported: " + imp.module());
+            String highlightedImport = Highlighter.highlight(imp.toString());
+            System.out.println("Module imported: " + highlightedImport);
         } catch (Exception e) {
             rootImports.remove(imp);
             namespaces = loader.loadAll(rootRules, rootImports);
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
-            System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
+            String highlightedImport = Highlighter.highlight(imp.toString());
+            System.err.println("Failed to load module: " + highlightedImport + "\n" + e.getMessage());
         }
     }
 }
