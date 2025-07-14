@@ -137,7 +137,8 @@ public class Repl {
                 }
             }
         } catch (RuntimeException e) {
-            System.err.println("Parse or evaluation error: " + e.getMessage());
+            String message = "\u001B[0;31m" + "Parse or evaluation error: " + "\u001B[0m";
+            System.out.println(message + e.getMessage());
         }
     }
 
@@ -152,8 +153,8 @@ public class Repl {
             String highlightedRule = Highlighter.highlight(rule.toString());
             System.out.println("Rule added: " + highlightedRule);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.err.println("Rule not added.");
+            String message = "\u001B[0;31m" + "Rule error: " + "\u001B[0m";
+            System.out.println(message + e.getMessage());
         }
     }
 
@@ -188,7 +189,8 @@ public class Repl {
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
             String highlightedImport = Highlighter.highlight(imp.toString());
-            System.err.println("Failed to load module: " + highlightedImport + "\n" + e.getMessage());
+            String message = "\u001B[0;31m" + "Failed to load module: " + "\u001B[0m";
+            System.out.println(message + highlightedImport + "\n" + e.getMessage());
         }
     }
 }
