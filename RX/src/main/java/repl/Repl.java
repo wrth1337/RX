@@ -183,7 +183,9 @@ public class Repl {
                         highlightedResult
                 );
             }
-            System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
+            String highlightedExpr = highlight(expr.toString());
+            String highlightedResult = highlight(result.toString());
+            System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", highlightedExpr, highlightedResult);
         } else {
             Expr result = evaluator.evaluate(expr, "Main");
             String highlightedExpr = highlight(expr.toString());
