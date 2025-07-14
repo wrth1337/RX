@@ -14,11 +14,7 @@ public class NativeRuleRegistry {
         //String Operations
         if (fn.equals("concat") && args.size() == 2 &&
                 args.get(0) instanceof Literal a && args.get(1) instanceof Literal b) {
-
-            String aVal = extractLiteralAsString(a);
-            String bVal = extractLiteralAsString(b);
-
-            return Optional.of(new StringLiteral(aVal + bVal));
+            return Optional.of(new StringLiteral(a.asRawString() + b.asRawString()));
         }
 
         if (fn.equals("length") && args.size() == 1 && args.get(0) instanceof StringLiteral s) {
@@ -89,15 +85,5 @@ public class NativeRuleRegistry {
         }
 
         return Optional.empty();
-    }
-
-    private static String extractLiteralAsString(Literal lit) {
-        return switch (lit) {
-            case StringLiteral s -> s.value();
-            case CharLiteral c -> String.valueOf(c.value());
-            case IntLiteral i -> String.valueOf(i.value());
-            case FloatLiteral f -> String.valueOf(f.value());
-            case BoolLiteral b -> String.valueOf(b.value());
-        };
     }
 }

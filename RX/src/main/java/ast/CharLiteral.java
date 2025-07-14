@@ -5,4 +5,9 @@ public record CharLiteral(char value) implements Literal {
     public String toString(){
         return "'" + value + "'";
     }
+
+    @Override
+    public String asRawString() {
+        return String.valueOf(value);
+    }
 }

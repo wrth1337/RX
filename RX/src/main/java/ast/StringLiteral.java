@@ -5,4 +5,9 @@ public record StringLiteral(String value) implements Literal {
     public String toString(){
         return "\""+value+"\"";
     }
+
+    @Override
+    public String asRawString() {
+        return value;
+    }
 }
