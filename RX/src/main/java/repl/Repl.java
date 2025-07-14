@@ -4,6 +4,7 @@ import ast.Expr;
 import ast.Import;
 import ast.Rule;
 import ast.TopLevelItem;
+import eval.TraceEntry;
 import modules.ModuleLoader;
 import engine.RewriteEngine;
 import engine.RuleValidator;
@@ -27,6 +28,7 @@ public class Repl {
     RewriteEngine engine = new RewriteEngine(namespaces);
     Evaluator evaluator = new Evaluator(engine);
     private boolean traceMode = false;
+    private boolean highlighting = true;
 
     public void start() {
         printWelcome();
@@ -51,7 +53,7 @@ public class Repl {
         String line = scanner.nextLine().trim();
         if (!isCommand(line)) {
             System.out.print("Input: ");
-            System.out.println(Highlighter.highlight(line));
+            System.out.println(highlight(line));
         }
         return line;
     }
@@ -67,6 +69,10 @@ public class Repl {
                 System.exit(0);
                 break;
             case "\\h":
+                highlighting = !highlighting;
+                System.out.println("Highlighting set to " + (highlighting ? "on" : "off"));
+                break;
+            case "\\?":
                 printHelp();
                 break;
             case "\\c":
@@ -87,7 +93,8 @@ public class Repl {
 
     private void printHelp() {
         System.out.println("Type '\\q' to quit.");
-        System.out.println("Type '\\h' for help.");
+        System.out.println("Type '\\h' to toggle highlighting. Current mode: " + (highlighting ? "on" : "off"));
+        System.out.println("Type '\\?' for help.");
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all available rules.");
         System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
@@ -113,7 +120,7 @@ public class Repl {
             System.out.println("=== Rules ===");
             for (Namespace namespace : availableNamespaces) {
                 System.out.println("Namespace: " + namespace.name());
-                List<String> highlightedRules = namespace.rules().stream().map(n -> Highlighter.highlight(n.toString())).toList();
+                List<String> highlightedRules = namespace.rules().stream().map(n -> highlight(n.toString())).toList();
                 for (String rule : highlightedRules) {
                     System.out.println(rule);
                 }
@@ -150,7 +157,7 @@ public class Repl {
             namespaces.get("Main").rules().add(rule);
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
-            String highlightedRule = Highlighter.highlight(rule.toString());
+            String highlightedRule = highlight(rule.toString());
             System.out.println("Rule added: " + highlightedRule);
         } catch (Exception e) {
             String message = "\u001B[0;31m" + "Rule error: " + "\u001B[0m";
@@ -160,17 +167,27 @@ public class Repl {
 
     private void evaluateExpression(Expr expr) {
         if (traceMode) {
-            List<String> trace = new ArrayList<>();
-            Expr result = evaluator.evaluateWithTrace(expr, trace, "Main");
+            List<TraceEntry> traceEntries = new ArrayList<>();
+            Expr result = evaluator.evaluateWithTrace(expr, traceEntries, "Main");
             System.out.println();
-            for (String s : trace) {
-                System.out.println(s);
+            for (TraceEntry trace : traceEntries) {
+                String highlightedReducedCall = highlight(trace.expression());
+                String highlightedContext = highlight(trace.context());
+                String highlightedRule = highlight(trace.rule());
+                String highlightedResult = highlight(trace.result());
+                System.out.printf(
+                        "[%d] Expression: %s\n     Context: %s\n     Rule: %s\n     Result: %s%n", trace.step(),
+                        highlightedReducedCall,
+                        highlightedContext,
+                        highlightedRule,
+                        highlightedResult
+                );
             }
             System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
         } else {
             Expr result = evaluator.evaluate(expr, "Main");
-            String highlightedExpr = Highlighter.highlight(expr.toString());
-            String highlightedResult = Highlighter.highlight(result.toString());
+            String highlightedExpr = highlight(expr.toString());
+            String highlightedResult = highlight(result.toString());
             System.out.printf("Expression: %s\nResult: %s\n\n", highlightedExpr, highlightedResult);
         }
     }
@@ -181,16 +198,24 @@ public class Repl {
             namespaces = loader.loadAll(rootRules, rootImports);
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
-            String highlightedImport = Highlighter.highlight(imp.toString());
+            String highlightedImport = highlight(imp.toString());
             System.out.println("Module imported: " + highlightedImport);
         } catch (Exception e) {
             rootImports.remove(imp);
             namespaces = loader.loadAll(rootRules, rootImports);
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
-            String highlightedImport = Highlighter.highlight(imp.toString());
+            String highlightedImport = highlight(imp.toString());
             String message = "\u001B[0;31m" + "Failed to load module: " + "\u001B[0m";
             System.out.println(message + highlightedImport + "\n" + e.getMessage());
+        }
+    }
+
+    private String highlight(String input) {
+        if (highlighting) {
+            return Highlighter.highlight(input);
+        } else {
+            return input;
         }
     }
 }

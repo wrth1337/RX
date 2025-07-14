@@ -3,7 +3,6 @@ package eval;
 import ast.*;
 import engine.RewriteEngine;
 import engine.RewriteResult;
-import repl.Highlighter;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +49,7 @@ public class Evaluator {
         return expr;
     }
 
-    public Expr evaluateWithTrace(Expr expr, List<String> trace, String context) {
+    public Expr evaluateWithTrace(Expr expr, List<TraceEntry> trace, String context) {
         if (expr instanceof BinaryOp bin) {
             String fname = switch (bin.op()) {
                 case ADD -> "add";
@@ -79,18 +78,7 @@ public class Evaluator {
             Optional<RewriteResult> rewritten = engine.rewriteWithRule(reducedCall, context);
             if (rewritten.isPresent() && !rewritten.get().result().equals(expr)) {
                 RewriteResult rr = rewritten.get();
-                String highlightedReducedCall = Highlighter.highlight(reducedCall.toString());
-                String highlightedRule = Highlighter.highlight(rr.rule().toString());
-                String highlightedResult = Highlighter.highlight(rr.result().toString());
-                String highlitedContext = Highlighter.highlight(namespace);
-
-                trace.add("[%d] Expression: %s\n     Context: %s\n     Rule: %s\n     Result: %s".formatted(
-                        trace.size() + 1,
-                        highlightedReducedCall,
-                        highlitedContext,
-                        highlightedRule,
-                        highlightedResult
-                ));
+                trace.add(new TraceEntry(trace.size()+1, reducedCall.toString(), context, rr.rule().toString(), rr.result().toString()));
                 return evaluateWithTrace(rewritten.get().result(), trace, namespace);
             }
         }
