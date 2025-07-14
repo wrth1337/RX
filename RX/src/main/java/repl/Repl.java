@@ -113,7 +113,8 @@ public class Repl {
             System.out.println("=== Rules ===");
             for (Namespace namespace : availableNamespaces) {
                 System.out.println("Namespace: " + namespace.name());
-                for (Rule rule : namespace.rules()) {
+                List<String> highlightedRules = namespace.rules().stream().map(n -> Highlighter.highlight(n.toString())).toList();
+                for (String rule : highlightedRules) {
                     System.out.println(rule);
                 }
                 System.out.println();
@@ -166,7 +167,9 @@ public class Repl {
             System.out.printf("\nInitial Expression: %s\nResult: %s\n\n", expr, result);
         } else {
             Expr result = evaluator.evaluate(expr, "Main");
-            System.out.printf("// %s\n%s\n\n", expr, result);
+            String highlightedExpr = Highlighter.highlight(expr.toString());
+            String highlightedResult = Highlighter.highlight(result.toString());
+            System.out.printf("Expression: %s\nResult: %s\n\n", highlightedExpr, highlightedResult);
         }
     }
 
