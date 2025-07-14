@@ -140,7 +140,25 @@ public class Parser {
 
     //Parse Expressions
     public Expr parseExpression() {
-        return parseComparison();
+        return parseLogical();
+    }
+
+    private Expr parseLogical() {
+        Expr expr = parseComparison();
+
+        while (true) {
+            if (match(TokenType.AND)) {
+                Expr right = parseComparison();
+                expr = new Call(null, "and", List.of(expr, right));
+            } else if (match(TokenType.OR)) {
+                Expr right = parseComparison();
+                expr = new Call(null, "or", List.of(expr, right));
+            } else {
+                break;
+            }
+        }
+
+        return expr;
     }
 
     private Expr parseComparison() {
@@ -257,6 +275,33 @@ public class Parser {
             Expr expr = parseExpression();
             expect(TokenType.RPAREN);
             return expr;
+        }
+
+        // Unary NOT
+        if (match(TokenType.NOT)) {
+            Expr expr = parsePrimary();
+            return new Call(null, "not", List.of(expr));
+        }
+
+        // Lists
+        if (match(TokenType.LBRACKET)) {
+            List<Expr> elements = new ArrayList<>();
+            if (current.type() != TokenType.RBRACKET) {
+                do {
+                    elements.add(parseExpression());
+                } while (match(TokenType.COMMA));
+            }
+            expect(TokenType.RBRACKET);
+
+            // Desugar to Cons/Nil
+            Expr list = new Call(null, "Nil", List.of());
+            for (int i = elements.size() - 1; i >= 0; i--) {
+                List<Expr> args = new ArrayList<>();
+                args.add(elements.get(i));
+                args.add(list);
+                list = new Call(null, "Cons", args);
+            }
+            return list;
         }
 
         throw new RuntimeException("Unexpected token in expression: " + current);
