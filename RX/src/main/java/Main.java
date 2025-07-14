@@ -163,11 +163,15 @@ public class Main {
                     break;
 
                 case "\\r":
-                    if (namespaces.isEmpty()) {
+                    List<String> importedModules = new ArrayList<>(namespaces.get("Main").imports().stream().map(Import::module).toList());
+                    importedModules.add("Prelude");
+                    importedModules.add("Main");
+                    List<Namespace> availableNamespaces = new ArrayList<>(namespaces.values().stream().filter(ns -> importedModules.contains(ns.name())).toList());
+                    if (availableNamespaces.isEmpty()) {
                         System.out.println("No rules defined.");
                     } else {
                         System.out.println("=== Rules ===");
-                        for (Namespace namespace : namespaces.values()) {
+                        for (Namespace namespace : availableNamespaces) {
                             System.out.println("Namespace: " + namespace.name());
                             for (Rule rule : namespace.rules()) {
                                 System.out.println(rule);
@@ -216,14 +220,18 @@ public class Main {
                                     System.out.printf("// %s\n%s\n\n", expr, result);
                                 }
                             } else if (item instanceof Import imp) {
+                                //TODO: needs to be optimized -> REPL Refactoring
                                 try {
                                     rootImports.add(imp);
-                                    //TODO: New rulevalidation
                                     namespaces = loader.loadAll(rootRules, rootImports);
                                     engine = new RewriteEngine(namespaces);
                                     evaluator = new Evaluator(engine);
                                     System.out.println("Module imported: " + imp.module());
                                 } catch (Exception e) {
+                                    rootImports.remove(imp);
+                                    namespaces = loader.loadAll(rootRules, rootImports);
+                                    engine = new RewriteEngine(namespaces);
+                                    evaluator = new Evaluator(engine);
                                     System.err.println("Failed to load module: " + imp.module() + "\n" + e.getMessage());
                                 }
                             }
