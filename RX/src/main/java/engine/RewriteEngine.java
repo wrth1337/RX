@@ -75,7 +75,7 @@ public class RewriteEngine {
 
     //Is needed for the Trace-Mode -> Native Rules arent "Rewriting-Rules" per definition
     private Rule makeNativeRule(Call call, Expr result) {
-        String sb = "[native rule] " + call.function();
+        String sb = call.function();
 
         List<PatternArg> patternArgs= new ArrayList<>();
         for (int i = 0; i < call.arguments().size() ; i++) {
