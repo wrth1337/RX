@@ -3,6 +3,7 @@ package engine;
 import ast.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,5 +48,19 @@ public class NativeRuleRegistryTest {
                 java.util.List.of(new CharLiteral('A')));
         Optional<Expr> result = NativeRuleRegistry.eval(call);
         assertThat(result).contains(new IntLiteral(65));
+    }
+
+    @Test
+    void explodeStringToList() {
+        Call explodeCall = new Call(null, "explode", List.of(new StringLiteral("hi")));
+        Optional<Expr> resultOpt = NativeRuleRegistry.eval(explodeCall);
+        Expr expected = new Call(null, "Cons", List.of(
+                new CharLiteral('h'),
+                new Call(null, "Cons", List.of(
+                        new CharLiteral('i'),
+                        new Call(null, "Nil", List.of())
+                ))
+        ));
+        assertThat(resultOpt).contains(expected);
     }
 }
