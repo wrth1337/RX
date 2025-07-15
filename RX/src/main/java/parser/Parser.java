@@ -167,22 +167,22 @@ public class Parser {
         while (true) {
             if (match(TokenType.EQ)) {
                 Expr right = parseAddition();
-                expr = new BinaryOp(expr, Operator.EQ, right);
+                expr = new Call(null, "eq", List.of(expr, right));
             } else if (match(TokenType.LT)) {
                 Expr right = parseAddition();
-                expr = new BinaryOp(expr, Operator.LT, right);
+                expr = new Call(null, "lt", List.of(expr, right));
             } else if (match(TokenType.LE)) {
                 Expr right = parseAddition();
-                expr = new BinaryOp(expr, Operator.LE, right);
+                expr = new Call(null, "le", List.of(expr, right));
             } else if (match(TokenType.GT)) {
                 Expr right = parseAddition();
-                expr = new BinaryOp(expr, Operator.GT, right);
+                expr = new Call(null, "gt", List.of(expr, right));
             } else if (match(TokenType.GE)) {
                 Expr right = parseAddition();
-                expr = new BinaryOp(expr, Operator.GE, right);
-            } else if (match(TokenType.NQ)){
+                expr = new Call(null, "ge", List.of(expr, right));
+            } else if (match(TokenType.NQ)) {
                 Expr right = parseAddition();
-                expr = new BinaryOp(expr, Operator.NQ, right);
+                expr = new Call(null, "nq", List.of(expr, right));
             } else {
                 break;
             }
@@ -195,10 +195,11 @@ public class Parser {
         Expr expr = parseMultiplication();
         while (true) {
             if (match(TokenType.PLUS)) {
-                expr = new BinaryOp(expr, Operator.ADD, parseMultiplication());
+                expr = new Call(null, "add", List.of(expr, parseMultiplication()));
             } else if (match(TokenType.MINUS)) {
-                expr = new BinaryOp(expr, Operator.SUB, parseMultiplication());
-            } else {
+                expr = new Call(null, "sub", List.of(expr, parseMultiplication()));
+            }
+            else {
                 break;
             }
         }
@@ -209,11 +210,11 @@ public class Parser {
         Expr expr = parsePrimary();
         while (true) {
             if (match(TokenType.MULT)) {
-                expr = new BinaryOp(expr, Operator.MUL, parsePrimary());
+                expr = new Call(null, "mul", List.of(expr, parsePrimary()));
             } else if (match(TokenType.DIV)) {
-                expr = new BinaryOp(expr, Operator.DIV, parsePrimary());
+                expr = new Call(null, "div", List.of(expr, parsePrimary()));
             } else if (match(TokenType.MOD)) {
-                expr = new BinaryOp(expr, Operator.MOD, parsePrimary());
+                expr = new Call(null, "mod", List.of(expr, parsePrimary()));
             } else {
                 break;
             }

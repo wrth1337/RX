@@ -15,25 +15,6 @@ public class Evaluator {
     }
 
     public Expr evaluate(Expr expr, String context) {
-        if (expr instanceof BinaryOp bin) {
-            String fname = switch (bin.op()) {
-                case ADD -> "add";
-                case SUB -> "sub";
-                case MUL -> "mul";
-                case DIV -> "div";
-                case MOD -> "mod";
-                case EQ  -> "eq";
-                case LT  -> "lt";
-                case NQ -> "nq";
-                case GT  -> "gt";
-                case LE  -> "le";
-                case GE  -> "ge";
-            };
-            Expr left = evaluate(bin.left(), context);
-            Expr right = evaluate(bin.right(), context);
-            return evaluate(new Call(null,fname, List.of(left, right)), context);
-        }
-
         if (expr instanceof Call call) {
             List<Expr> reducedArgs = call.arguments().stream()
                     .map(arg -> evaluate(arg, context))
@@ -50,25 +31,6 @@ public class Evaluator {
     }
 
     public Expr evaluateWithTrace(Expr expr, List<TraceEntry> trace, String context) {
-        if (expr instanceof BinaryOp bin) {
-            String fname = switch (bin.op()) {
-                case ADD -> "add";
-                case SUB -> "sub";
-                case MUL -> "mul";
-                case DIV -> "div";
-                case MOD -> "mod";
-                case EQ  -> "eq";
-                case LT  -> "lt";
-                case NQ -> "nq";
-                case GT  -> "gt";
-                case LE  -> "le";
-                case GE  -> "ge";
-            };
-            Expr left = evaluateWithTrace(bin.left(), trace, context);
-            Expr right = evaluateWithTrace(bin.right(), trace, context);
-            return evaluateWithTrace(new Call(null,fname, List.of(left, right)), trace, context);
-        }
-
         if (expr instanceof Call call) {
             List<Expr> reducedArgs = call.arguments().stream()
                     .map(arg -> evaluateWithTrace(arg, trace,  context))
