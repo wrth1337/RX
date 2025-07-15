@@ -58,3 +58,4 @@ def isZero(x) = x == 0
 def isPositive(x) = x > 0
 def isNegative(x) = x < 0
 def isEven(x) = x % 2 == 0
+def isOdd(x) = !(isEven(x))
