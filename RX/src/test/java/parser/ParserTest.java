@@ -4,6 +4,7 @@ import ast.*;
 import lexer.Lexer;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -223,6 +224,81 @@ class ParserTest {
         assertThat(add.function()).isEqualTo("add");
         assertThat(((IntLiteral) add.arguments().get(0)).value()).isEqualTo(1);
         assertThat(((IntLiteral) add.arguments().get(1)).value()).isEqualTo(2);
+    }
+
+    @Test
+    void parsesListLiteral() {
+        List<TopLevelItem> result = parse("[1, 2, 3]");
+        assertThat(result).hasSize(1);
+
+        Expr expr = (Expr) result.getFirst();
+        assertThat(expr).isInstanceOf(Call.class);
+
+        Call cons1 = (Call) expr;
+        assertThat(cons1.function()).isEqualTo("Cons");
+        assertThat(((IntLiteral) cons1.arguments().get(0)).value()).isEqualTo(1);
+
+        Call cons2 = (Call) cons1.arguments().get(1);
+        assertThat(cons2.function()).isEqualTo("Cons");
+        assertThat(((IntLiteral) cons2.arguments().get(0)).value()).isEqualTo(2);
+
+        Call cons3 = (Call) cons2.arguments().get(1);
+        assertThat(cons3.function()).isEqualTo("Cons");
+        assertThat(((IntLiteral) cons3.arguments().get(0)).value()).isEqualTo(3);
+
+        Call nil = (Call) cons3.arguments().get(1);
+        assertThat(nil.function()).isEqualTo("Nil");
+        assertThat(nil.arguments()).isEmpty();
+    }
+
+    @Test
+    void parsesMixedListLiteralWithExpressions() {
+        List<TopLevelItem> result = parse("[420, 13.37, 1337, 1, 2, 3, 5 + 1, 5 + 2.5, 2.5 * 3]");
+        assertThat(result).hasSize(1);
+
+        Expr list = (Expr) result.getFirst();
+        assertThat(list).isInstanceOf(Call.class);
+
+        List<Expr> elements = new ArrayList<>();
+        while (list instanceof Call cons && cons.function().equals("Cons")) {
+            elements.add(cons.arguments().get(0));
+            list = cons.arguments().get(1);
+        }
+
+        assertThat(list).isInstanceOf(Call.class);
+        assert list instanceof Call;
+        assertThat(((Call) list).function()).isEqualTo("Nil");
+
+        assertThat(elements).hasSize(9);
+
+        assertThat(elements.get(0)).isInstanceOf(IntLiteral.class);
+        assertThat(((IntLiteral) elements.get(0)).value()).isEqualTo(420);
+
+        assertThat(elements.get(1)).isInstanceOf(FloatLiteral.class);
+        assertThat(((FloatLiteral) elements.get(1)).value()).isEqualTo(13.37);
+
+        assertThat(elements.get(2)).isInstanceOf(IntLiteral.class);
+        assertThat(((IntLiteral) elements.get(2)).value()).isEqualTo(1337);
+
+        assertThat(((IntLiteral) elements.get(3)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) elements.get(4)).value()).isEqualTo(2);
+        assertThat(((IntLiteral) elements.get(5)).value()).isEqualTo(3);
+
+        assertThat(elements.get(6)).isInstanceOf(Call.class);
+        Call add1 = (Call) elements.get(6);
+        assertThat(add1.function()).isEqualTo("add");
+        assertThat(((IntLiteral) add1.arguments().get(0)).value()).isEqualTo(5);
+        assertThat(((IntLiteral) add1.arguments().get(1)).value()).isEqualTo(1);
+
+        Call add2 = (Call) elements.get(7);
+        assertThat(add2.function()).isEqualTo("add");
+        assertThat(((IntLiteral) add2.arguments().get(0)).value()).isEqualTo(5);
+        assertThat(((FloatLiteral) add2.arguments().get(1)).value()).isEqualTo(2.5);
+
+        Call mul = (Call) elements.get(8);
+        assertThat(mul.function()).isEqualTo("mul");
+        assertThat(((FloatLiteral) mul.arguments().get(0)).value()).isEqualTo(2.5);
+        assertThat(((IntLiteral) mul.arguments().get(1)).value()).isEqualTo(3);
     }
 
 }
