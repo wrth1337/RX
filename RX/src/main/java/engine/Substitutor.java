@@ -19,12 +19,6 @@ public class Substitutor {
             return new Call(call.namespace(), call.function(), newArgs);
         }
 
-        if (expr instanceof BinaryOp bin) {
-            Expr left = substitute(bin.left(), bindings);
-            Expr right = substitute(bin.right(), bindings);
-            return new BinaryOp(left, bin.op(), right);
-        }
-
         return expr;
     }
 }

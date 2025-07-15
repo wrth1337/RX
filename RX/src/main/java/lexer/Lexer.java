@@ -36,6 +36,8 @@ public class Lexer {
             case '%': nextChar(); return new Token(TokenType.MOD, "%");
             case '(': nextChar(); return new Token(TokenType.LPAREN, "(");
             case ')': nextChar(); return new Token(TokenType.RPAREN, ")");
+            case '[': nextChar(); return new Token(TokenType.LBRACKET, "[");
+            case ']': nextChar(); return new Token(TokenType.RBRACKET, "]");
             case ',': nextChar(); return new Token(TokenType.COMMA, ",");
             case '_': nextChar(); return new Token(TokenType.WILDCARD, "_");
             case '.':
@@ -60,7 +62,7 @@ public class Lexer {
                     nextChar();
                     return new Token(TokenType.NQ, "!=");
                 } else {
-                    return new Token(TokenType.ERROR, "!");
+                    return new Token(TokenType.BANG, "!");
                 }
             }
             case '<': {
@@ -79,6 +81,24 @@ public class Lexer {
                     return new Token(TokenType.GE, ">=");
                 } else {
                     return new Token(TokenType.GT, ">");
+                }
+            }
+            case '&': {
+                nextChar();
+                if (currentChar == '&') {
+                    nextChar();
+                    return new Token(TokenType.AND, "&&");
+                } else {
+                    return new Token(TokenType.ERROR, "&");
+                }
+            }
+            case '|': {
+                nextChar();
+                if (currentChar == '|') {
+                    nextChar();
+                    return new Token(TokenType.OR, "||");
+                } else {
+                    return new Token(TokenType.ERROR, "|");
                 }
             }
             case '"':

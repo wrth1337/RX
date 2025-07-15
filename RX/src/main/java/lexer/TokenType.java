@@ -24,10 +24,17 @@ public enum TokenType {
     LT ("<"),
     NQ ("!="),
 
+    AND("&&"),
+    OR("||"),
+    BANG("!"),
+
+
     LPAREN("("),
     RPAREN(")"),
     COMMA(","),
     DOT("."),
+    LBRACKET("["),
+    RBRACKET("]"),
 
     //Keywords
     IMPORT("import"),

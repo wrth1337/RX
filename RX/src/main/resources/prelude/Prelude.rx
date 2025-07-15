@@ -7,6 +7,18 @@
 def if(true, thenBranch, _) = thenBranch
 def if(false, _, elseBranch) = elseBranch
 
+// Logical Combination
+def not(true)  = false
+def not(false) = true
+
+def and(true,  true)  = true
+def and(true,  false) = false
+def and(false, _)     = false
+
+def or(true,  _)     = true
+def or(false, true)  = true
+def or(false, false) = false
+
 // Mathematical Operations
 // These functions provide basic and advanced mathematical operations.
 def max(a, b) = if(a > b, a, b)
