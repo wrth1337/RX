@@ -1,0 +1,33 @@
+// --- n-Faculty ---
+def fact(0) = 1
+def fact(n) = n * fact(n - 1)
+
+// --- Fibonacci ---
+def fib(0) = 0
+def fib(1) = 1
+def fib(n) = fib(n - 1) + fib(n - 2)
+
+// --- GCD (Euklid) ---
+def gcd(x, 0) = x
+def gcd(x, y) = gcd(y, x % y)
+
+// --- LCM ---
+def lcm(x, y) = (x * y) / gcd(x, y)
+
+// --- Power ---
+def pow(_, 0) = 1
+def pow(base, exp) = base * pow(base, exp - 1)
+
+// --- Range Check ---
+def between(x, a, b) = x >= a && x <= b
+
+// --- Triangle Numbers ---
+def triangle(n) = n * (n + 1) / 2
+
+// --- Constants ---
+def pi() = 3.141592653589793
+def twoPi() = 2 * pi()
+
+// --- Degree <-> Radian ---
+def degToRad(d) = d * pi() / 180
+def radToDeg(r) = r * 180 / pi()
