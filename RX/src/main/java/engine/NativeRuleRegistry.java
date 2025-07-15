@@ -70,7 +70,13 @@ public class NativeRuleRegistry {
                 case "add" -> Optional.of(new IntLiteral(l.value() + r.value()));
                 case "sub" -> Optional.of(new IntLiteral(l.value() - r.value()));
                 case "mul" -> Optional.of(new IntLiteral(l.value() * r.value()));
-                case "div" -> Optional.of(new IntLiteral(l.value() / r.value()));
+                case "div" -> {
+                    if (l.value() % r.value() != 0) {
+                        yield Optional.of(new FloatLiteral((double) l.value() / r.value()));
+                    } else {
+                        yield Optional.of(new IntLiteral(l.value() / r.value()));
+                    }
+                }
                 case "mod" -> Optional.of(new IntLiteral(l.value() % r.value()));
 
                 case "eq"  -> Optional.of(new BoolLiteral(l.value() == r.value()));
