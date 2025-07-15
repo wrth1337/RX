@@ -27,7 +27,29 @@ def triangle(n) = n * (n + 1) / 2
 // --- Constants ---
 def pi() = 3.141592653589793
 def twoPi() = 2 * pi()
+def tau() = 2 * pi()
+def e() = 2.718281828459045
+def goldenRatio() = (1 + sqrt5()) / 2
+
+// --- Newton-Verfahren: Wurzelberechnung ---
+def sqrtIter(x, guess, 0) = guess
+def sqrtIter(x, guess, n) = sqrtIter(x, (guess + x / guess) / 2, n - 1)
+// Convenience-Funktion: Starte mit guess = x / 2, 10 Schritte
+def sqrt(x) = sqrtIter(x, x / 2, 10)
 
 // --- Degree <-> Radian ---
 def degToRad(d) = d * pi() / 180
 def radToDeg(r) = r * 180 / pi()
+
+// --- Sinus über Taylor-Reihe (näherungsweise) ---
+def sinTaylor(x, 0) = x
+def sinTaylor(x, n) = sinTaylor(x, n - 1) + pow(0-1, n) * pow(x, 2 * n + 1) / fact(2 * n + 1)
+def sin(x) = sinTaylor(x, 5)
+
+// --- Cosinus über Taylor-Reihe ---
+def cosTaylor(x, 0) = 1
+def cosTaylor(x, n) = cosTaylor(x, n - 1) + pow(0-1, n) * pow(x, 2 * n) / fact(2 * n)
+def cos(x) = cosTaylor(x, 5)
+
+// --- Tangens ---
+def tan(x) = sin(x) / cos(x)
