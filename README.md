@@ -23,6 +23,8 @@ The goal is not to build a production-ready language, but to study and experimen
 - Syntactic Sugar
   - ```[]``` -> Easier creation of lists
   - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
+- Internal Module:
+  - [Math](RX/src/main/resources/modules/Math.rx): Advanced mathematical functions
 
 ### Currently WIP
 - Various modules that natively extend the functions of RX
