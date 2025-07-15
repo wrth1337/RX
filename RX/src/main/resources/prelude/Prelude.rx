@@ -1,13 +1,8 @@
-// Prelude - A collection of basic functions and data structures
-// This file contains basic functions and data structures for functional programming.
-// The code is divided into logical sections and commented to improve readability and maintainability.
-
-// Control Structures
-// These functions provide basic control structures for functional programming.
+// --- Control Structures ---
 def if(true, thenBranch, _) = thenBranch
 def if(false, _, elseBranch) = elseBranch
 
-// Logical Combination
+// --- Boolean Logic ---
 def not(true)  = false
 def not(false) = true
 
@@ -19,36 +14,11 @@ def or(true,  _)     = true
 def or(false, true)  = true
 def or(false, false) = false
 
-// Mathematical Operations
-// These functions provide basic and advanced mathematical operations.
-def max(a, b) = if(a > b, a, b)
-def min(a, b) = if(a < b, a, b)
-def square(x) = x * x
-def abs(x) = if(x < 0, 0 - x, x)
-def clamp(x, minVal, maxVal) = max(min(x, maxVal), minVal)
-def double(x) = x * 2
-def inc(x) = x + 1
-
-// Number Predicates
-// These functions check properties of numbers.
-def isZero(x) = x == 0
-def isPositive(x) = x > 0
-def isNegative(x) = x < 0
-
-// Recursive Mathematical Functions
-// These functions use recursion to calculate mathematical operations.
-def fact(0) = 1
-def fact(n) = n * fact(n - 1)
-
-def fib(0) = 0
-def fib(1) = 1
-def fib(n) = fib(n - 1) + fib(n - 2)
-
-// List Operations
-// These functions provide basic operations for lists.
+// --- List Constructors ---
 def Nil() = Nil()
 def Cons(h, t) = Cons(h, t)
 
+// --- List Operations ---
 def length(Nil()) = 0
 def length(Cons(h, t)) = 1 + length(t)
 
@@ -67,7 +37,24 @@ def tail(Cons(h, t)) = t
 def last(Cons(h, Nil())) = h
 def last(Cons(h, t)) = last(t)
 
-// Test Lists
-// These lists are used for testing purposes.
-def testList() = Cons(1000, Cons(300, Cons(30, Cons(7, Nil()))))
-def testList2() = Cons(1000.1337, Cons(300, Cons(30, Cons(7, Nil()))))
+def isEmpty(Nil()) = true
+def isEmpty(Cons(h, t)) = false
+
+// --- Equality on Lists ---
+def eqList(Nil(), Nil()) = true
+def eqList(Cons(x, xs), Cons(y, ys)) = x == y && eqList(xs, ys)
+def eqList(_, _) = false
+
+// --- Basic Number Helpers ---
+def min(x, y) = if(x < y, x, y)
+def max(x, y) = if(x > y, x, y)
+def abs(x) = if(x < 0, 0 - x, x)
+def sign(x) = if(x < 0, 0-1, if(x > 0, 1, 0))
+def square(x) = x * x
+def double(x) = x * 2
+def inc(x) = x + 1
+def clamp(x, minVal, maxVal) = max(min(x, maxVal), minVal)
+def isZero(x) = x == 0
+def isPositive(x) = x > 0
+def isNegative(x) = x < 0
+def isEven(x) = x % 2 == 0
