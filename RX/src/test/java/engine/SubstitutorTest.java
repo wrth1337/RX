@@ -31,26 +31,6 @@ class SubstitutorTest {
     }
 
     @Test
-    void substitute_BinaryOpOperandsAreSubstituted() {
-        Var x = new Var("x");
-        Var y = new Var("y");
-        BinaryOp bin = new BinaryOp(x, Operator.ADD, y);
-
-        Expr result = substitutor.substitute(bin, Map.of(
-                "x", new Var("one"),
-                "y", new Var("two")
-        ));
-
-        assertThat(result)
-                .isInstanceOf(BinaryOp.class);
-
-        BinaryOp substituted = (BinaryOp) result;
-        assertThat(substituted.left().toString()).isEqualTo("one");
-        assertThat(substituted.right().toString()).isEqualTo("two");
-        assertThat(substituted.op()).isEqualTo(Operator.ADD);
-    }
-
-    @Test
     void substitute_LiteralsAreUnchanged() {
         Literal literal = new IntLiteral(42);
 

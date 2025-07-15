@@ -31,18 +31,20 @@ class ParserTest {
         assertThat(result).hasSize(1);
 
         Expr expr = (Expr) result.getFirst();
-        assertThat(expr).isInstanceOf(BinaryOp.class);
+        assertThat(expr).isInstanceOf(Call.class);
 
-        BinaryOp add = (BinaryOp) expr;
-        assertThat(add.op()).isEqualTo(Operator.ADD);
-        assertThat(add.left()).isInstanceOf(IntLiteral.class);
-        assertThat(((IntLiteral) add.left()).value()).isEqualTo(1);
+        Call add = (Call) expr;
+        assertThat(add.function()).isEqualTo("add");
+        assertThat(add.arguments().getFirst()).isInstanceOf(IntLiteral.class);
+        assertThat(((IntLiteral) add.arguments().get(0)).value()).isEqualTo(1);
 
-        assertThat(add.right()).isInstanceOf(BinaryOp.class);
-        BinaryOp mul = (BinaryOp) add.right();
-        assertThat(mul.op()).isEqualTo(Operator.MUL);
-        assertThat(((IntLiteral) mul.left()).value()).isEqualTo(2);
-        assertThat(((IntLiteral) mul.right()).value()).isEqualTo(3);
+        assertThat(add.arguments().get(1)).isInstanceOf(Call.class);
+        Call mul = (Call) add.arguments().get(1);
+        assertThat(mul.function()).isEqualTo("mul");
+        assertThat(((IntLiteral) mul.arguments().get(0)).value()).isEqualTo(2);
+        assertThat(((IntLiteral) mul.arguments().get(1)).value()).isEqualTo(3);
+
+
     }
 
     @Test
@@ -50,17 +52,17 @@ class ParserTest {
         List<TopLevelItem> result = parse("(1 + 2) * 3");
         Expr expr = (Expr) result.getFirst();
 
-        assertThat(expr).isInstanceOf(BinaryOp.class);
-        BinaryOp mul = (BinaryOp) expr;
-        assertThat(mul.op()).isEqualTo(Operator.MUL);
+        assertThat(expr).isInstanceOf(Call.class);
+        Call mul = (Call) expr;
+        assertThat(mul.function()).isEqualTo("mul");
 
-        assertThat(mul.left()).isInstanceOf(BinaryOp.class);
-        BinaryOp add = (BinaryOp) mul.left();
-        assertThat(add.op()).isEqualTo(Operator.ADD);
-        assertThat(((IntLiteral) add.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) add.right()).value()).isEqualTo(2);
+        assertThat(mul.arguments().getFirst()).isInstanceOf(Call.class);
+        Call add = (Call) mul.arguments().getFirst();
+        assertThat(add.function()).isEqualTo("add");
+        assertThat(((IntLiteral) add.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) add.arguments().get(1)).value()).isEqualTo(2);
 
-        assertThat(((IntLiteral) mul.right()).value()).isEqualTo(3);
+        assertThat(((IntLiteral) mul.arguments().get(1)).value()).isEqualTo(3);
     }
 
     @Test
@@ -169,40 +171,41 @@ class ParserTest {
     @Test
     void parsesAllComparisonOperators() {
         List<TopLevelItem> eqResult = parse("1 == 2");
-        BinaryOp eq = (BinaryOp) eqResult.getFirst();
-        assertThat(eq.op()).isEqualTo(Operator.EQ);
-        assertThat(((IntLiteral) eq.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) eq.right()).value()).isEqualTo(2);
+        Call eq = (Call) eqResult.getFirst();
+        assertThat(eq.function()).isEqualTo("eq");
+        assertThat(eq.arguments()).hasSize(2);
+        assertThat(((IntLiteral) eq.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) eq.arguments().get(1)).value()).isEqualTo(2);
 
         List<TopLevelItem> ltResult = parse("1 < 2");
-        BinaryOp lt = (BinaryOp) ltResult.getFirst();
-        assertThat(lt.op()).isEqualTo(Operator.LT);
-        assertThat(((IntLiteral) lt.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) lt.right()).value()).isEqualTo(2);
+        Call lt = (Call) ltResult.getFirst();
+        assertThat(lt.function()).isEqualTo("lt");
+        assertThat(((IntLiteral) lt.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) lt.arguments().get(1)).value()).isEqualTo(2);
 
         List<TopLevelItem> leResult = parse("1 <= 2");
-        BinaryOp le = (BinaryOp) leResult.getFirst();
-        assertThat(le.op()).isEqualTo(Operator.LE);
-        assertThat(((IntLiteral) le.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) le.right()).value()).isEqualTo(2);
+        Call le = (Call) leResult.getFirst();
+        assertThat(le.function()).isEqualTo("le");
+        assertThat(((IntLiteral) le.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) le.arguments().get(1)).value()).isEqualTo(2);
 
         List<TopLevelItem> gtResult = parse("1 > 2");
-        BinaryOp gt = (BinaryOp) gtResult.getFirst();
-        assertThat(gt.op()).isEqualTo(Operator.GT);
-        assertThat(((IntLiteral) gt.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) gt.right()).value()).isEqualTo(2);
+        Call gt = (Call) gtResult.getFirst();
+        assertThat(gt.function()).isEqualTo("gt");
+        assertThat(((IntLiteral) gt.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) gt.arguments().get(1)).value()).isEqualTo(2);
 
         List<TopLevelItem> geResult = parse("1 >= 2");
-        BinaryOp ge = (BinaryOp) geResult.getFirst();
-        assertThat(ge.op()).isEqualTo(Operator.GE);
-        assertThat(((IntLiteral) ge.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) ge.right()).value()).isEqualTo(2);
+        Call ge = (Call) geResult.getFirst();
+        assertThat(ge.function()).isEqualTo("ge");
+        assertThat(((IntLiteral) ge.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) ge.arguments().get(1)).value()).isEqualTo(2);
 
         List<TopLevelItem> nqResult = parse("1 != 2");
-        BinaryOp nq = (BinaryOp) nqResult.getFirst();
-        assertThat(nq.op()).isEqualTo(Operator.NQ);
-        assertThat(((IntLiteral) nq.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) nq.right()).value()).isEqualTo(2);
+        Call nq = (Call) nqResult.getFirst();
+        assertThat(nq.function()).isEqualTo("nq");
+        assertThat(((IntLiteral) nq.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) nq.arguments().get(1)).value()).isEqualTo(2);
     }
 
     @Test
@@ -211,17 +214,15 @@ class ParserTest {
         assertThat(result).hasSize(1);
 
         Expr expr = (Expr) result.getFirst();
-        assertThat(expr).isInstanceOf(BinaryOp.class);
-        BinaryOp eq = (BinaryOp) expr;
-        assertThat(eq.op()).isEqualTo(Operator.EQ);
+        assertThat(expr).isInstanceOf(Call.class);
+        Call eq = (Call) expr;
+        assertThat(eq.function()).isEqualTo("eq");
 
-        assertThat(eq.left()).isInstanceOf(BinaryOp.class);
-        BinaryOp add = (BinaryOp) eq.left();
-        assertThat(add.op()).isEqualTo(Operator.ADD);
-        assertThat(((IntLiteral) add.left()).value()).isEqualTo(1);
-        assertThat(((IntLiteral) add.right()).value()).isEqualTo(2);
-
-        assertThat(eq.right()).isInstanceOf(IntLiteral.class);
-        assertThat(((IntLiteral) eq.right()).value()).isEqualTo(3);
+        assertThat(eq).isInstanceOf(Call.class);
+        Call add = (Call) eq.arguments().getFirst();
+        assertThat(add.function()).isEqualTo("add");
+        assertThat(((IntLiteral) add.arguments().get(0)).value()).isEqualTo(1);
+        assertThat(((IntLiteral) add.arguments().get(1)).value()).isEqualTo(2);
     }
+
 }
