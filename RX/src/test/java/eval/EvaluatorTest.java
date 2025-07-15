@@ -190,4 +190,25 @@ public class EvaluatorTest {
         Expr result7 = localEvaluator.evaluate(fizzbuzz7, "Prelude");
         assertThat(result7).isEqualTo(new IntLiteral(7));
     }
+
+    @Test
+    void testSomeLongerCalculations() {
+        String expressions = """
+            5+3*2-8/4+7*(6-2)
+            10*(2+3)-4*(5-2)+7*2
+            (15+3*4)%7+10/2
+            (5-2)*3-(5-20)
+            (5/2)+2.5*3
+        """;
+        Lexer lexer = new Lexer(expressions);
+        Parser parser = new Parser(lexer);
+        List<TopLevelItem> parsedTopLevelItems = parser.parse();
+        List<Expr> expressionsList = parsedTopLevelItems.stream().map(n -> (Expr) n).toList();
+
+        assertThat(this.evaluator.evaluate(expressionsList.get(0), "Prelude")).isEqualTo(new IntLiteral(37));
+        assertThat(this.evaluator.evaluate(expressionsList.get(1), "Prelude")).isEqualTo(new IntLiteral(52));
+        assertThat(this.evaluator.evaluate(expressionsList.get(2), "Prelude")).isEqualTo(new IntLiteral(11));
+        assertThat(this.evaluator.evaluate(expressionsList.get(3), "Prelude")).isEqualTo(new IntLiteral(24));
+        assertThat(this.evaluator.evaluate(expressionsList.get(4), "Prelude")).isEqualTo(new FloatLiteral(10));
+    }
 }
