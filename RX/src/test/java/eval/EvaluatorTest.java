@@ -20,14 +20,17 @@ public class EvaluatorTest {
 
     @BeforeEach
     void setup() {
-        String rules = "def fact(0) = 1\n" +
-                "def fact(n) = n * fact(n - 1)\n" +
-                "\n" +
-                "def fib(0) = 0\n" +
-                "def fib(1) = 1\n" +
-                "def fib(n) = fib(n - 1) + fib(n - 2)" +
-                "def if(true, thenBranch, _) = thenBranch\n" +
-                "def if(false, _, elseBranch) = elseBranch";
+        String rules = """
+            def fact(0) = 1
+            def fact(n) = n * fact(n - 1)
+
+            def fib(0) = 0
+            def fib(1) = 1
+            def fib(n) = fib(n - 1) + fib(n - 2)
+
+            def if(true, thenBranch, _) = thenBranch
+            def if(false, _, elseBranch) = elseBranch
+       \s""";
         Lexer lexer = new Lexer(rules);
         Parser parser = new Parser(lexer);
         List<TopLevelItem> parsedTopLevelItems = parser.parse();
