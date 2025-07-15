@@ -278,7 +278,7 @@ public class Parser {
         }
 
         // Unary NOT
-        if (match(TokenType.NOT)) {
+        if (match(TokenType.BANG)) {
             Expr expr = parsePrimary();
             return new Call(null, "not", List.of(expr));
         }

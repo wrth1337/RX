@@ -62,7 +62,7 @@ public class Lexer {
                     nextChar();
                     return new Token(TokenType.NQ, "!=");
                 } else {
-                    return new Token(TokenType.NOT, "!");
+                    return new Token(TokenType.BANG, "!");
                 }
             }
             case '<': {

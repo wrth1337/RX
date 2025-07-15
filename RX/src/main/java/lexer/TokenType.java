@@ -26,7 +26,7 @@ public enum TokenType {
 
     AND("&&"),
     OR("||"),
-    NOT("!"),
+    BANG("!"),
 
 
     LPAREN("("),
