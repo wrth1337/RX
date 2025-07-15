@@ -11,25 +11,20 @@ The goal is not to build a production-ready language, but to study and experimen
 
 - User-defined rewrite rules with pattern matching
 - Support for integer, float, boolean, character and string literals
-- Arithmetic operations: `+`, `-`, `*`, `/`, `%`
-- Boolean comparisons: `==`, `!=`, `<`, `<=`, `>`, `>=`
-- String operations: `concat`, `length`, `charAt`
-- Character operations: `toInt`
+- Internal operations:
+  - Arithmetic operations: `+`, `-`, `*`, `/`, `%`
+  - Boolean comparisons: `==`, `!=`, `<`, `<=`, `>`, `>=`
+  - String operations: `concat`, `length`, `charAt`
+  - Character operations: `toInt`
 - REPL for testing the evaluation of expressions and adding of new rules
+  - A trace mode in the REPL to be able to trace the exact replacement steps individually
 - Wildcards in rule definition to prevent substitution (eg. ``` def if(true, thenBranch, _) = thenBranch ```)
-- A trace mode in the REPL to be able to trace the exact replacement steps individually
-- Various steps to harden RX (eg. Errormessages, Prevent ambivalent rules from being added, etc.)
 - Dynamic loading of individual modules, outsourcing of rule sets to independent modules, differentiation between internal and custom modules, and each module having its own namespace.
+- Syntactic Sugar
+  - ```[]``` -> Easier creation of lists
+  - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
 
 ### Currently WIP
-- Providing more “syntactic sugar”
-  - Is converted internally by the parser into a call of rewrite rules
-  - Possible:
-    - ```[]``` -> Easier creation of lists
-    - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
-    - ```"Hello, ${name}!"``` -> String-Interpolation
-
-### Planned features
 - Various modules that natively extend the functions of RX
   - More complex data structures such as lists
   - lambda calculus translators
@@ -38,6 +33,9 @@ The goal is not to build a production-ready language, but to study and experimen
   - unit-test framework + Testmode in the interpreter
   - Converter for units of measurement
   - ...
+
+### Planned features
+
 - Ideas for possible further features are constantly emerging :)
 
 ## Examples
