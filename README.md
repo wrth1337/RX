@@ -26,7 +26,6 @@ The goal is not to build a production-ready language, but to study and experimen
 
 ### Currently WIP
 - Various modules that natively extend the functions of RX
-  - More complex data structures such as lists
   - lambda calculus translators
   - binary operations
   - advanced mathematical operations
