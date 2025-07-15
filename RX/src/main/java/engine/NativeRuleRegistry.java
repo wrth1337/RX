@@ -26,6 +26,11 @@ public class NativeRuleRegistry {
             return Optional.of(new CharLiteral(s.value().charAt(i.value())));
         }
 
+        if (fn.equals("explode") && args.size() == 1 && args.get(0) instanceof StringLiteral s) {
+            Expr result = stringToList(s.value());
+            return Optional.of(result);
+        }
+
         //Char Operations
         if (fn.equals("toInt") && args.size() == 1 && args.get(0) instanceof CharLiteral c) {
             return Optional.of(new IntLiteral(c.value()));
@@ -91,5 +96,16 @@ public class NativeRuleRegistry {
         }
 
         return Optional.empty();
+    }
+
+    private static Expr stringToList(String str) {
+        Expr result = new Call(null, "Nil", List.of()); // Nil()
+        for (int i = str.length() - 1; i >= 0; i--) {
+            result = new Call(null, "Cons", List.of(
+                    new CharLiteral(str.charAt(i)),
+                    result
+            ));
+        }
+        return result;
     }
 }
