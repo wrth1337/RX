@@ -1,0 +1,38 @@
+// === Set Module ===
+
+// --- Set Construction ---
+def emptySet() = Nil()
+def singleton(x) = Cons(x, Nil())
+
+// --- Insertion (ensures uniqueness) ---
+def insert(x, Nil()) = Cons(x, Nil())
+def insert(x, Cons(y, t)) = if(x == y, Cons(y, t), Cons(y, insert(x, t)))
+
+// --- List to Set Conversion ---
+def listToSet(Nil()) = emptySet()
+def listToSet(Cons(h, t)) = insert(h, listToSet(t))
+
+// --- Membership Test ---
+def member(x, Nil()) = false
+def member(x, Cons(y, t)) = if(x == y, true, member(x, t))
+
+// --- Set Union ---
+def union(Nil(), s2) = s2
+def union(Cons(x, t), s2) = union(t, insert(x, s2))
+
+// --- Set Intersection ---
+def intersect(Nil(), s2) = Nil()
+def intersect(Cons(x, t), s2) = if(member(x, s2), Cons(x, intersect(t, s2)), intersect(t, s2))
+
+// --- Set Difference ---
+def difference(Nil(), s2) = Nil()
+def difference(Cons(x, t), s2) = if(member(x, s2), difference(t, s2), Cons(x, difference(t, s2)))
+
+// --- Set Symmetric Difference ---
+def symmetricDifference(a, b) = union(difference(a, b), difference(b, a))
+
+// --- Set Properties ---
+def isEmpty(Nil()) = true
+def isEmpty(Cons(h, t)) = false
+def size(Nil()) = 0
+def size(Cons(h, t)) = 1 + size(t)
