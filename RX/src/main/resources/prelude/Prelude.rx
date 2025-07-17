@@ -1,3 +1,5 @@
+// === Prelude ===
+
 // --- Control Structures ---
 def if(true, thenBranch, _) = thenBranch
 def if(false, _, elseBranch) = elseBranch
@@ -7,11 +9,11 @@ def not(true)  = false
 def not(false) = true
 
 def and(true,  true)  = true
-def and(true,  false) = false
+def and(_,  false) = false
 def and(false, _)     = false
 
 def or(true,  _)     = true
-def or(false, true)  = true
+def or(_, true)  = true
 def or(false, false) = false
 
 // --- List Constructors ---
