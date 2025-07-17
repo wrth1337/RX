@@ -1,0 +1,33 @@
+// === Map Module ===
+
+// --- Map Construction ---
+def emptyMap() = Nil()
+
+// --- Insert or Update Entry ---
+def put(k, v, Nil()) = Cons([k, v], Nil())
+def put(k, v, Cons([k2, v2], t)) = if(k == k2, Cons([k, v], t), Cons([k2, v2], put(k, v, t)))
+
+// --- Lookup Entry ---
+def get(k, Nil()) = Nil()
+def get(k, Cons([k2, v2], t)) = if(k == k2, v2, get(k, t))
+
+// --- Key Existence Check ---
+def contains(k, Nil()) = false
+def contains(k, Cons([k2, h], t)) = if(k == k2, true, contains(k, t))
+
+// --- Remove Entry ---
+def remove(k, Nil()) = Nil()
+def remove(k, Cons([k2, v2], t)) = if(k == k2, t, Cons([k2, v2], remove(k, t)))
+
+// --- Get All Keys ---
+def keys(Nil()) = Nil()
+def keys(Cons([k, h], t)) = Cons(k, keys(t))
+
+// --- Get All Values ---
+def values(Nil()) = Nil()
+def values(Cons([h, v], t)) = Cons(v, values(t))
+
+// --- Build Map from Flat List: [k1, v1, k2, v2, ...] ---
+def mapBuilder(Nil()) = emptyMap()
+def mapBuilder(Cons(k, Nil())) = emptyMap()
+def mapBuilder(Cons(k, Cons(v, t))) = put(k, v, mapBuilder(t))
