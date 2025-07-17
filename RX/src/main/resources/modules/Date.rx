@@ -1,0 +1,70 @@
+// === Date Module ===
+
+// --- Construction and Display ---
+def Date(y, m, d) = Date(y, m, d)
+
+def dateToString(Date(y, m, d)) =
+    concat(concat(concat(concat(y, "-"), if(m < 10, concat("0", m), m)), "-"),
+           if(d < 10, concat("0", d), d))
+
+// --- Leap Year Logic ---
+def isLeapYear(y) =
+    if(y % 4 != 0, false,
+      if(y % 100 != 0, true,
+         if(y % 400 != 0, false, true)))
+
+// --- Days in Month (correct for leap years) ---
+// More elegant but leads to more rewriting steps
+//def daysInMonth(y, m) =
+//    if(m == 2, if(isLeapYear(y), 29, 28),
+//        if(m == 4 || m == 6 || m == 9 || m == 11, 30, 31))
+def daysInMonth(y, 1)  = 31
+def daysInMonth(y, 3)  = 31
+def daysInMonth(y, 4)  = 30
+def daysInMonth(y, 5)  = 31
+def daysInMonth(y, 6)  = 30
+def daysInMonth(y, 7)  = 31
+def daysInMonth(y, 8)  = 31
+def daysInMonth(y, 9)  = 30
+def daysInMonth(y, 10) = 31
+def daysInMonth(y, 11) = 30
+def daysInMonth(y, 12) = 31
+
+// Only February needs leap logic:
+def daysInMonth(y, 2) =
+    if(isLeapYear(y), 29, 28)
+
+
+// --- Equality and Ordering ---
+def dateEq(Date(y1, m1, d1), Date(y2, m2, d2)) =
+    y1 == y2 && m1 == m2 && d1 == d2
+
+def dateLt(Date(y1, m1, d1), Date(y2, m2, d2)) =
+    if(y1 < y2, true,
+       if(y1 > y2, false,
+         if(m1 < m2, true,
+            if(m1 > m2, false, d1 < d2))))
+
+// --- Date Arithmetic (adding days) ---
+def nextDay(Date(y, m, d)) =
+  if(d + 1 > daysInMonth(y, m),
+    if(m == 12,
+      Date(y + 1, 1, 1),
+      Date(y, m + 1, 1)),
+    Date(y, m, d + 1))
+
+def addDays(date, 0) = date
+def addDays(date, n) = addDays(nextDay(date), n - 1)
+
+// --- Date Arithmetic (subtracting days) ---
+def prevDay(Date(y, m, d)) =
+  if(d - 1 < 1,
+    if(m == 1,
+      Date(y - 1, 12, daysInMonth(y - 1, 12)),
+      Date(y, m - 1, daysInMonth(y, m - 1))),
+    Date(y, m, d - 1))
+
+def subDays(date, 0) = date
+def subDays(date, n) = subDays(prevDay(date), n - 1)
+
+
