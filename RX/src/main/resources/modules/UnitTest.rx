@@ -1,0 +1,38 @@
+// === UnitTest Module ===
+
+// --- Core Assertion with description ---
+def assertEquals(description, actual, expected) =
+    if(expected == actual,
+        success(description),
+        fail(
+            concat(
+                concat(description, " - Expected: "),
+                concat(expected, concat(" - Got : ", actual))
+            )
+        )
+    )
+
+def assertTrue(description, actual) =
+    if(actual == true,
+        success(description),
+        fail(
+            concat(
+                concat(description, " - Expected: "),
+                concat(true, concat(" - Got     : ", actual))
+            )
+        )
+    )
+
+def assertFalse(description, actual) =
+    if(actual == false,
+        success(description),
+        fail(
+            concat(
+                concat(description, " - Expected: "),
+                concat(false, concat(" - Got: ", actual))
+            )
+        )
+    )
+
+def fail(input) = concat("[Failed] ", input)
+def success(input) = concat("[Success] ", input)
