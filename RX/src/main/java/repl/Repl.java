@@ -21,7 +21,8 @@ import java.util.Scanner;
 
 public class Repl {
     private final Scanner scanner = new Scanner(System.in);
-    ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
+    //TODO: Testing in REPL
+    ModuleLoader loader = new ModuleLoader(Path.of("modules/"), false);
     List<Import> rootImports = new ArrayList<>();
     List<Rule> rootRules = new ArrayList<>();
     Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);

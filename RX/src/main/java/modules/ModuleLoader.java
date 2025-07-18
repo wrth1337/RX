@@ -23,9 +23,11 @@ public class ModuleLoader {
     private final Map<String, Namespace> loadedModules = new HashMap<>();
 
     private final Path userModulesPath;
+    private final boolean testModules;
 
-    public ModuleLoader(Path userModulesPath) {
+    public ModuleLoader(Path userModulesPath, boolean testModules) {
         this.userModulesPath = userModulesPath;
+        this.testModules = testModules;
     }
 
     public Map<String, Namespace> loadAll(List<Rule> mainRules, List<Import> mainImports) {
@@ -50,7 +52,7 @@ public class ModuleLoader {
     }
 
     private Namespace registerMain(List<Rule> mainRules, List<Import> mainImports) {
-        Namespace main = new Namespace("Main", mainRules, mainImports);
+        Namespace main = new Namespace("Main", mainRules, mainImports, List.of());
         loadedModules.put("Main", main);
         return main;
     }
@@ -62,11 +64,14 @@ public class ModuleLoader {
 
         List<Import> imports = new ArrayList<>();
         List<Rule> rules = new ArrayList<>();
+        List<Expr> expressions = new ArrayList<>();
         for (TopLevelItem item : items) {
             if (item instanceof Rule rule) {
                 rules.add(rule);
-            } else if (item instanceof Expr) {
-                throw new RuntimeException("Invalid item in module '" + moduleName + "': Only imports and rules allowed!");
+            } else if (item instanceof Expr e) {
+                if (testModules) {
+                    expressions.add(e);
+                }
             } else if (item instanceof Import imp) {
                 if (!loadedModules.containsKey(imp.module())) {
                     Namespace imported = parseModuleFile(imp.module());
@@ -75,7 +80,7 @@ public class ModuleLoader {
                 imports.add(imp);
             }
         }
-        return new Namespace(moduleName, rules, imports);
+        return new Namespace(moduleName, rules, imports, expressions);
     }
 
     private String readModuleSource(String moduleName) {

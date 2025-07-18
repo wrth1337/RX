@@ -28,11 +28,13 @@ public class Main {
 
                 boolean debug = false;
                 boolean highlight = false;
+                boolean testModules = false;
 
                 for (int i = 2; i < args.length; i++) {
                     switch (args[i]) {
                         case "-d" -> debug = true;
                         case "-h" -> highlight = true;
+                        case "-t" -> testModules = true;
                         default -> {
                             System.err.println("Unknown option: " + args[i]);
                             System.exit(1);
@@ -45,7 +47,7 @@ public class Main {
                     System.exit(1);
                 }
 
-                Interpreter interpreter = new Interpreter(debug, highlight);
+                Interpreter interpreter = new Interpreter(debug, highlight, testModules);
                 interpreter.interpret(Path.of(fileArg));
                 break;
 

@@ -17,7 +17,7 @@ public class RuleValidatorTest {
         Rule r1 = new Rule(new Pattern("add", List.of(new PatternVar("x"), new PatternVar("y"))), null);
         Rule r2 = new Rule(new Pattern("add", List.of(new PatternVar("x"), new PatternVar("y"))), null);
 
-        Namespace ns = new Namespace("Test", List.of(r1, r2), List.of());
+        Namespace ns = new Namespace("Test", List.of(r1, r2), List.of(), List.of());
 
         assertThatThrownBy(() -> RuleValidator.checkRules(ns.rules(), "Test"))
                 .isInstanceOf(RuntimeException.class)
@@ -29,7 +29,7 @@ public class RuleValidatorTest {
         Rule r1 = new Rule(new Pattern("add", List.of(new PatternVar("x"), new PatternVar("y"))), null);
         Rule r2 = new Rule(new Pattern("sub", List.of(new PatternVar("x"), new PatternVar("y"))), null);
 
-        Namespace ns = new Namespace("Test", List.of(r1, r2), List.of());
+        Namespace ns = new Namespace("Test", List.of(r1, r2), List.of(), List.of());
 
         RuleValidator.checkRules(ns.rules(), "Test");
     }

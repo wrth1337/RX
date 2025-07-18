@@ -35,7 +35,7 @@ public class EvaluatorTest {
         Parser parser = new Parser(lexer);
         List<TopLevelItem> parsedTopLevelItems = parser.parse();
         List<Rule> rulesList = parsedTopLevelItems.stream().map(n -> (Rule) n).toList();
-        Namespace prelude = new Namespace("Prelude", rulesList, List.of());
+        Namespace prelude = new Namespace("Prelude", rulesList, List.of(), List.of());
         Map<String, Namespace> modules = Map.of("Prelude", prelude);
         RewriteEngine engine = new RewriteEngine(modules);
         this.evaluator = new Evaluator(engine);
@@ -171,7 +171,7 @@ public class EvaluatorTest {
         Parser parser = new Parser(lexer);
         List<TopLevelItem> parsedTopLevelItems = parser.parse();
         List<Rule> rulesList = parsedTopLevelItems.stream().map(n -> (Rule) n).toList();
-        Namespace prelude = new Namespace("Prelude", rulesList, List.of());
+        Namespace prelude = new Namespace("Prelude", rulesList, List.of(), List.of());
         Map<String, Namespace> modules = Map.of("Prelude", prelude);
 
         RewriteEngine localEngine = new RewriteEngine(modules);

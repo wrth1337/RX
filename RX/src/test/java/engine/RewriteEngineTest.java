@@ -13,7 +13,7 @@ public class RewriteEngineTest {
 
     @Test
     void testRewriteNative() {
-        RewriteEngine engine = new RewriteEngine(Map.of("Prelude", new Namespace("Prelude", List.of(), List.of())));
+        RewriteEngine engine = new RewriteEngine(Map.of("Prelude", new Namespace("Prelude", List.of(), List.of(), List.of())));
 
         Call call = new Call(null, "add", List.of(new IntLiteral(1), new IntLiteral(2)));
         Expr result = engine.rewrite(call, "Prelude");
