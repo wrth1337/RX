@@ -201,6 +201,10 @@ public class Repl {
     }
 
     private void loadImport(Import imp) {
+        if (namespaces.containsKey(imp.module())) {
+            System.out.println("Module already imported: " + highlight(imp.toString()));
+            return;
+        }
         try {
             rootImports.add(imp);
             namespaces = loader.loadAll(rootRules, rootImports);
