@@ -1,3 +1,5 @@
+// === Math Module ===
+
 // --- Factorial (n!) ---
 def fact(0) = 1
 def fact(n) = n * fact(n - 1)
@@ -81,3 +83,93 @@ def isPositive(x) = x > 0
 def isNegative(x) = x < 0
 def isEven(x) = x % 2 == 0
 def isOdd(x) = !(isEven(x))
+
+
+
+// === Unit Tests for Math Module ===
+import UnitTest
+
+// --- Factorial ---
+UnitTest.assertEquals("fact(0) = 1", fact(0), 1)
+UnitTest.assertEquals("fact(5) = 120", fact(5), 120)
+
+// --- Fibonacci ---
+UnitTest.assertEquals("fib(0) = 0", fib(0), 0)
+UnitTest.assertEquals("fib(1) = 1", fib(1), 1)
+UnitTest.assertEquals("fib(6) = 8", fib(6), 8)
+
+// --- GCD ---
+UnitTest.assertEquals("gcd(48, 18) = 6", gcd(48, 18), 6)
+UnitTest.assertEquals("gcd(7, 13) = 1", gcd(7, 13), 1)
+
+// --- LCM ---
+UnitTest.assertEquals("lcm(4, 6) = 12", lcm(4, 6), 12)
+UnitTest.assertEquals("lcm(5, 7) = 35", lcm(5, 7), 35)
+
+// --- Exponentiation ---
+UnitTest.assertEquals("pow(2, 0) = 1", pow(2, 0), 1)
+UnitTest.assertEquals("pow(2, 5) = 32", pow(2, 5), 32)
+
+// --- Range Check ---
+UnitTest.assertTrue("between(5, 1, 10) is true", between(5, 1, 10))
+UnitTest.assertFalse("between(0, 1, 10) is false", between(0, 1, 10))
+
+// --- Triangle Numbers ---
+UnitTest.assertEquals("triangle(1) = 1", triangle(1), 1)
+UnitTest.assertEquals("triangle(5) = 15", triangle(5), 15)
+
+// --- Constants ---
+UnitTest.assertTrue("pi() ≈ 3.141", pi() > 3.14 && pi() < 3.15)
+UnitTest.assertTrue("e() ≈ 2.718", e() > 2.71 && e() < 2.72)
+
+// --- Degree/Radian Conversion ---
+UnitTest.assertTrue("degToRad(180) ≈ pi()", abs(degToRad(180) - pi()) < 0.001)
+UnitTest.assertTrue("radToDeg(pi()) ≈ 180", abs(radToDeg(pi()) - 180) < 0.001)
+
+// --- Trigonometric Functions (approximated) ---
+UnitTest.assertTrue("sin(pi()/2) ≈ 1", abs(sin(pi() / 2) - 1) < 0.01)
+UnitTest.assertTrue("cos(0) ≈ 1", abs(cos(0) - 1) < 0.01)
+UnitTest.assertTrue("tan(0) ≈ 0", abs(tan(0) - 0) < 0.01)
+
+// --- Inverse Trigonometric (approximated) ---
+UnitTest.assertTrue("arcsin(0.5) ≈ 0.523", abs(arcsin(0.5) - 0.523) < 0.01)
+UnitTest.assertTrue("arccos(0) ≈ pi()/2", abs(arccos(0) - pi() / 2) < 0.01)
+UnitTest.assertTrue("arctan(1) ≈ pi()/4", abs(arctan(1) - (pi() / 4)) < 0.1)
+
+// --- Absolute Value ---
+UnitTest.assertEquals("abs(5) = 5", abs(5), 5)
+UnitTest.assertEquals("abs(-5) = 5", abs(0 - 5), 5)
+
+// --- Sign ---
+UnitTest.assertEquals("sign(5) = 1", sign(5), 1)
+UnitTest.assertEquals("sign(-5) = -1", sign(0 - 5), 0 - 1)
+UnitTest.assertEquals("sign(0) = 0", sign(0), 0)
+
+// --- Min / Max ---
+UnitTest.assertEquals("min(3,7) = 3", min(3, 7), 3)
+UnitTest.assertEquals("max(3,7) = 7", max(3, 7), 7)
+
+// --- Clamp ---
+UnitTest.assertEquals("clamp(5, 1, 10) = 5", clamp(5, 1, 10), 5)
+UnitTest.assertEquals("clamp(0, 1, 10) = 1", clamp(0, 1, 10), 1)
+UnitTest.assertEquals("clamp(20, 1, 10) = 10", clamp(20, 1, 10), 10)
+
+// --- Basic Number Helpers ---
+UnitTest.assertEquals("square(4) = 16", square(4), 16)
+UnitTest.assertEquals("double(7) = 14", double(7), 14)
+UnitTest.assertEquals("inc(9) = 10", inc(9), 10)
+
+UnitTest.assertTrue("isZero(0)", isZero(0))
+UnitTest.assertFalse("isZero(1)", isZero(1))
+
+UnitTest.assertTrue("isPositive(5)", isPositive(5))
+UnitTest.assertFalse("isPositive(-3)", isPositive(0 - 3))
+
+UnitTest.assertTrue("isNegative(-1)", isNegative(0 - 1))
+UnitTest.assertFalse("isNegative(2)", isNegative(2))
+
+UnitTest.assertTrue("isEven(4)", isEven(4))
+UnitTest.assertFalse("isEven(3)", isEven(3))
+
+UnitTest.assertTrue("isOdd(3)", isOdd(3))
+UnitTest.assertFalse("isOdd(4)", isOdd(4))
