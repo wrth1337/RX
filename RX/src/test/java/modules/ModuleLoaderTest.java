@@ -32,7 +32,7 @@ class ModuleLoaderTest {
         Rule mainRule = new Rule(pattern, new IntLiteral(1));
         Import importUser = new Import("UserModule");
 
-        ModuleLoader loader = new ModuleLoader(tempModulesDir);
+        ModuleLoader loader = new ModuleLoader(tempModulesDir, false);
         Map<String, Namespace> modules = loader.loadAll(List.of(mainRule), List.of(importUser));
 
         assertThat(modules)
@@ -58,7 +58,7 @@ class ModuleLoaderTest {
     @Test
     void testLoadAll_ThrowsForMissingModule() {
         Import missing = new Import("DoesNotExist");
-        ModuleLoader loader = new ModuleLoader(tempModulesDir);
+        ModuleLoader loader = new ModuleLoader(tempModulesDir, false);
 
         assertThatThrownBy(() -> loader.loadAll(List.of(), List.of(missing)))
                 .isInstanceOf(RuntimeException.class)
@@ -67,7 +67,7 @@ class ModuleLoaderTest {
 
     @Test
     void testLoadPreludeIsAlwaysLoaded() {
-        ModuleLoader loader = new ModuleLoader(tempModulesDir);
+        ModuleLoader loader = new ModuleLoader(tempModulesDir, false);
         Map<String, Namespace> modules = loader.loadAll(List.of(), List.of());
 
         assertThat(modules).containsKey("Prelude");

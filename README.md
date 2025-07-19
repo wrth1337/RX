@@ -25,13 +25,16 @@ The goal is not to build a production-ready language, but to study and experimen
   - ```&&```, ```||```, ```!``` -> Linking of boolean comparisons
 - Internal Module:
   - [Math](RX/src/main/resources/modules/Math.rx): Advanced mathematical functions
+  - [Map](RX/src/main/resources/modules/Map.rx): New data-structure -> Map
+  - [Set](RX/src/main/resources/modules/Set.rx): New data-structure -> Set
+  - [Date](RX/src/main/resources/modules/Date.rx): Simple date operations
+  - [UnitTest](RX/src/main/resources/modules/UnitTest.rx): Basic Unit-Test Framework
+
 
 ### Currently WIP
 - Various modules that natively extend the functions of RX
   - lambda calculus translators
   - binary operations
-  - advanced mathematical operations
-  - unit-test framework + Testmode in the interpreter
   - Converter for units of measurement
   - ...
 

@@ -36,6 +36,17 @@ public class NativeRuleRegistry {
             return Optional.of(new IntLiteral(c.value()));
         }
 
+        // Generic EQ/NQ support
+        if ((fn.equals("eq") || fn.equals("nq")) && args.size() == 2) {
+            Expr a = args.get(0);
+            Expr b = args.get(1);
+
+            if (a instanceof Literal la && b instanceof Literal lb) {
+                boolean equal = la.equals(lb);
+                return Optional.of(new BoolLiteral(fn.equals("eq") == equal));
+            }
+        }
+
         //Numeral operations
         if (args.size() != 2) return Optional.empty();
 

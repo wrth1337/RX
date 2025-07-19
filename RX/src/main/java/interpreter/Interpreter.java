@@ -6,6 +6,7 @@ import engine.RuleValidator;
 import eval.Evaluator;
 import lexer.Lexer;
 import modules.ModuleLoader;
+import modules.ModuleTester;
 import modules.Namespace;
 import parser.Parser;
 import repl.Highlighter;
@@ -19,10 +20,12 @@ public class Interpreter {
 
     private final boolean debug;
     private final boolean highlighting;
+    private final boolean testModules;
 
-    public Interpreter(boolean debug, boolean highlighting) {
+    public Interpreter(boolean debug, boolean highlighting, boolean testModules) {
         this.debug = debug;
         this.highlighting = highlighting;
+        this.testModules = testModules;
     }
 
     public void interpret(Path filename) throws IOException {
@@ -58,12 +61,41 @@ public class Interpreter {
         }
 
         log("[3] Loading modules");
-        ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
+        ModuleLoader loader = new ModuleLoader(Path.of("modules/"), testModules);
         Map<String, Namespace> namespaces = loader.loadAll(rules, imports);
         log("  Modules loaded: " + namespaces.keySet());
 
         log("[4] Validating namespaces");
+        log("[4.1] Validating rules");
         RuleValidator.checkNamespaces(namespaces);
+        if (testModules) {
+            log("[4.2] Test namespaces");
+            Map<String, List<List<Expr>>> testresult = ModuleTester.testNamespaces(namespaces);
+            for (Map.Entry<String, List<List<Expr>>> entry : testresult.entrySet()) {
+                String moduleName = entry.getKey();
+                List<Expr> passes = entry.getValue().get(0);
+                List<Expr> fails = entry.getValue().get(1);
+                if (debug) {
+                    if (!passes.isEmpty()) {
+                        System.out.println(moduleName + " - Passes [" + passes.size() + "/" + (passes.size() + fails.size()) + "]:");
+                        for (Expr pass : passes) {
+                            System.out.println("  "+pass.toString());
+                        }
+                    }
+                    if (!fails.isEmpty()) {
+                        System.out.println(moduleName + " - Fails [" + fails.size() + "/" + (passes.size() + fails.size()) + "]:");
+                        for (Expr fail : fails) {
+                            System.out.println("  "+fail.toString());
+                        }
+                    }
+
+                } else {
+                    if (!fails.isEmpty()) {
+                        System.out.println("Module " + moduleName + " has " + fails.size() + " failed Tests.");
+                    }
+                }
+            }
+        }
 
         log("[5] Starting evaluation");
         RewriteEngine engine = new RewriteEngine(namespaces);

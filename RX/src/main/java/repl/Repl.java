@@ -10,18 +10,17 @@ import engine.RewriteEngine;
 import engine.RuleValidator;
 import eval.Evaluator;
 import lexer.Lexer;
+import modules.ModuleTester;
 import modules.Namespace;
 import parser.Parser;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Repl {
     private final Scanner scanner = new Scanner(System.in);
-    ModuleLoader loader = new ModuleLoader(Path.of("modules/"));
+    //TODO: Testing in REPL
+    ModuleLoader loader = new ModuleLoader(Path.of("modules/"), false);
     List<Import> rootImports = new ArrayList<>();
     List<Rule> rootRules = new ArrayList<>();
     Map<String, Namespace> namespaces = loader.loadAll(rootRules, rootImports);
@@ -29,6 +28,7 @@ public class Repl {
     Evaluator evaluator = new Evaluator(engine);
     private boolean traceMode = false;
     private boolean highlighting = true;
+    private boolean testMode = false;
 
     public void start() {
         printWelcome();
@@ -85,6 +85,10 @@ public class Repl {
                 traceMode = !traceMode;
                 System.out.println("Trace mode set to " + (traceMode ? "on" : "off") + "\n");
                 break;
+            case "\\test":
+                testMode = !testMode;
+                loader = new ModuleLoader(Path.of("modules/"), testMode);
+                System.out.println("Test mode set to " + (testMode ? "on" : "off") + "\n");
             default:
                 System.out.println("Unknown command: " + input);
                 printHelp();
@@ -98,6 +102,7 @@ public class Repl {
         System.out.println("Type '\\c' to clear all rules.");
         System.out.println("Type '\\r' to show all available rules.");
         System.out.println("Type '\\t' to toggle trace-mode. Current mode: " + (traceMode ? "on" : "off"));
+        System.out.println("Type '\\test' to toggle test-mode. Current mode is: " + (testMode ? "on" : "off"));
         System.out.println();
     }
 
@@ -196,9 +201,37 @@ public class Repl {
     }
 
     private void loadImport(Import imp) {
+        if (namespaces.containsKey(imp.module())) {
+            System.out.println("Module already imported: " + highlight(imp.toString()));
+            return;
+        }
         try {
             rootImports.add(imp);
             namespaces = loader.loadAll(rootRules, rootImports);
+
+            RuleValidator.checkNamespaces(namespaces);
+
+            if (testMode) {
+                Map<String, List<List<Expr>>> testresult = ModuleTester.testNamespaces(filterNamespace(namespaces, imp));
+                for (Map.Entry<String, List<List<Expr>>> entry : testresult.entrySet()) {
+                    String moduleName = entry.getKey();
+                    List<Expr> passes = entry.getValue().get(0);
+                    List<Expr> fails = entry.getValue().get(1);
+                    if (!passes.isEmpty()) {
+                        System.out.println(moduleName + " - Passes [" + passes.size() + "/" + (passes.size() + fails.size()) + "]:");
+                        for (Expr pass : passes) {
+                            System.out.println("  "+pass.toString());
+                        }
+                    }
+                    if (!fails.isEmpty()) {
+                        System.out.println(moduleName + " - Fails [" + fails.size() + "/" + (passes.size() + fails.size()) + "]:");
+                        for (Expr fail : fails) {
+                            System.out.println("  "+fail.toString());
+                        }
+                    }
+                }
+            }
+
             engine = new RewriteEngine(namespaces);
             evaluator = new Evaluator(engine);
             String highlightedImport = highlight(imp.toString());
@@ -220,5 +253,22 @@ public class Repl {
         } else {
             return input;
         }
+    }
+
+    private static Map<String, Namespace> filterNamespace(Map<String, Namespace> namespaces, Import namespaceImport) {
+        Namespace namespace = namespaces.get(namespaceImport.module());
+
+        Map<String, Namespace> filteredMap = new HashMap<>();
+        filteredMap.put(namespace.name(), namespace);
+        filteredMap.put("Prelude", namespaces.get("Prelude"));
+
+        for (Import importDecl : namespace.imports()) {
+            String importName = importDecl.module();
+            if (namespaces.containsKey(importName)) {
+                filteredMap.put(importName, namespaces.get(importName));
+            }
+        }
+
+        return filteredMap;
     }
 }
