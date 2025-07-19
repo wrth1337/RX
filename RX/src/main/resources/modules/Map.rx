@@ -31,3 +31,67 @@ def values(Cons([h, v], t)) = Cons(v, values(t))
 def mapBuilder(Nil()) = emptyMap()
 def mapBuilder(Cons(k, Nil())) = emptyMap()
 def mapBuilder(Cons(k, Cons(v, t))) = put(k, v, mapBuilder(t))
+
+// --- Map toString ---
+def mapToString(Nil()) = "{}"
+
+def pairToString(Cons(k, Cons(v, Nil()))) =
+    concat(concat(k, " → "), v)
+
+def mapToStringRec(Cons(Cons(k, Cons(v, Nil())), Nil())) =
+    pairToString(Cons(k, Cons(v, Nil())))
+
+def mapToStringRec(Cons(Cons(k, Cons(v, Nil())), t)) =
+    concat(pairToString(Cons(k, Cons(v, Nil()))), concat(", ", mapToStringRec(t)))
+
+def mapToString(map) =
+    concat("{", concat(mapToStringRec(map), "}"))
+
+
+
+
+
+// === UnitTests for Map Module with toString ===
+import UnitTest
+
+UnitTest.assertEquals("put single entry {a → 1}",
+    mapToString(put("a", 1, emptyMap())),
+  "{a → 1}")
+
+UnitTest.assertEquals("put updates existing key",
+  mapToString(put("a", 2, Cons(["a", 1], Nil()))),
+  "{a → 2}")
+
+UnitTest.assertEquals("get returns correct value for key",
+  get("x", Cons(["x", 42], Cons(["y", 99], Nil()))),
+  42)
+
+UnitTest.assertTrue("contains detects present key",
+  contains("key", Cons(["key", 5], Nil())))
+
+UnitTest.assertFalse("contains returns false if key is missing",
+  contains("none", emptyMap()))
+
+UnitTest.assertEquals("remove deletes key correctly",
+  mapToString(remove("a", Cons(["a", 1], Cons(["b", 2], Nil())))),
+  "{b → 2}")
+
+UnitTest.assertEquals("remove keeps map unchanged if key not found",
+  mapToString(remove("x", Cons(["a", 1], Nil()))),
+  "{a → 1}")
+
+UnitTest.assertEquals("keys extracts all keys in order",
+  mapToString(Cons(["a", 1], Cons(["b", 2], Cons(["c", 3], Nil())))),
+  "{a → 1, b → 2, c → 3}")
+
+UnitTest.assertEquals("values extracts all values in order",
+  mapToString(Cons(["a", 1], Cons(["b", 2], Cons(["c", 3], Nil())))),
+  "{a → 1, b → 2, c → 3}")
+
+UnitTest.assertEquals("mapBuilder builds map from flat list",
+  mapToString(mapBuilder(Cons("a", Cons(1, Cons("b", Cons(2, Cons("c", Cons(3, Nil())))))))),
+  "{c → 3, b → 2, a → 1}")
+
+UnitTest.assertEquals("mapBuilder ignores trailing key without value",
+  mapToString(mapBuilder(Cons("a", Cons(1, Cons("b", Nil()))))),
+  "{a → 1}")
