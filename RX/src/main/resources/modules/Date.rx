@@ -15,20 +15,9 @@ def isLeapYear(y) =
 
 // --- Days in Month (correct for leap years) ---
 // More elegant but leads to more rewriting steps
-//def daysInMonth(y, m) =
-//    if(m == 2, if(isLeapYear(y), 29, 28),
-//        if(m == 4 || m == 6 || m == 9 || m == 11, 30, 31))
-def daysInMonth(y, 1)  = 31
-def daysInMonth(y, 3)  = 31
-def daysInMonth(y, 4)  = 30
-def daysInMonth(y, 5)  = 31
-def daysInMonth(y, 6)  = 30
-def daysInMonth(y, 7)  = 31
-def daysInMonth(y, 8)  = 31
-def daysInMonth(y, 9)  = 30
-def daysInMonth(y, 10) = 31
-def daysInMonth(y, 11) = 30
-def daysInMonth(y, 12) = 31
+def daysInMonth(y, m) =
+    if(m == 2, if(isLeapYear(y), 29, 28),
+        if(m == 4 || m == 6 || m == 9 || m == 11, 30, 31))
 
 // Only February needs leap logic:
 def daysInMonth(y, 2) =
@@ -68,3 +57,64 @@ def subDays(date, 0) = date
 def subDays(date, n) = subDays(prevDay(date), n - 1)
 
 
+
+// === Unit Tests for Date Module ===
+import UnitTest
+
+// --- dateToString ---
+UnitTest.assertEquals("dateToString 2025-01-09", dateToString(Date(2025, 1, 9)), "2025-01-09")
+UnitTest.assertEquals("dateToString 1999-12-31", dateToString(Date(1999, 12, 31)), "1999-12-31")
+
+// --- isLeapYear ---
+UnitTest.assertTrue("2000 is leap year", isLeapYear(2000))
+UnitTest.assertFalse("1900 is not leap year", isLeapYear(1900))
+UnitTest.assertTrue("2024 is leap year", isLeapYear(2024))
+UnitTest.assertFalse("2023 is not leap year", isLeapYear(2023))
+
+// --- daysInMonth ---
+UnitTest.assertEquals("February 2024 has 29 days", daysInMonth(2024, 2), 29)
+UnitTest.assertEquals("February 2023 has 28 days", daysInMonth(2023, 2), 28)
+UnitTest.assertEquals("April has 30 days", daysInMonth(2023, 4), 30)
+UnitTest.assertEquals("December has 31 days", daysInMonth(2023, 12), 31)
+
+// --- dateEq ---
+UnitTest.assertTrue("Date equality: 2024-12-01 == 2024-12-01",
+  dateEq(Date(2024, 12, 1), Date(2024, 12, 1)))
+UnitTest.assertFalse("Date inequality: 2024-12-01 != 2024-12-02",
+  dateEq(Date(2024, 12, 1), Date(2024, 12, 2)))
+
+// --- dateLt ---
+UnitTest.assertTrue("Date less than: 2024-01-01 < 2024-01-02",
+  dateLt(Date(2024, 1, 1), Date(2024, 1, 2)))
+UnitTest.assertTrue("Date less than across month: 2024-01-31 < 2024-02-01",
+  dateLt(Date(2024, 1, 31), Date(2024, 2, 1)))
+UnitTest.assertFalse("Date not less than: 2024-02-01 < 2024-01-31",
+  dateLt(Date(2024, 2, 1), Date(2024, 1, 31)))
+
+// --- nextDay ---
+UnitTest.assertEquals("nextDay 2024-03-03 → 2024-03-04",
+  dateToString(nextDay(Date(2024, 3, 3))), "2024-03-04")
+UnitTest.assertEquals("nextDay end of month → new month",
+  dateToString(nextDay(Date(2024, 4, 30))), "2024-05-01")
+UnitTest.assertEquals("nextDay end of year → new year",
+  dateToString(nextDay(Date(2023, 12, 31))), "2024-01-01")
+
+// --- prevDay ---
+UnitTest.assertEquals("prevDay 2024-03-03 → 2024-03-02",
+  dateToString(prevDay(Date(2024, 3, 3))), "2024-03-02")
+UnitTest.assertEquals("prevDay start of month → previous month",
+  dateToString(prevDay(Date(2024, 5, 1))), "2024-04-30")
+UnitTest.assertEquals("prevDay start of year → previous year",
+  dateToString(prevDay(Date(2024, 1, 1))), "2023-12-31")
+
+// --- addDays (1–2 steps only) ---
+UnitTest.assertEquals("addDays 2024-02-27 +1 → 2024-02-28",
+  dateToString(addDays(Date(2024, 2, 27), 1)), "2024-02-28")
+UnitTest.assertEquals("addDays 2024-02-27 +2 → 2024-02-29",
+  dateToString(addDays(Date(2024, 2, 27), 2)), "2024-02-29")
+
+// --- subDays (1–2 steps only) ---
+UnitTest.assertEquals("subDays 2024-03-01 -1 → 2024-02-29",
+  dateToString(subDays(Date(2024, 3, 1), 1)), "2024-02-29")
+UnitTest.assertEquals("subDays 2024-03-01 -2 → 2024-02-28",
+  dateToString(subDays(Date(2024, 3, 1), 2)), "2024-02-28")
