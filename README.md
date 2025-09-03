@@ -38,9 +38,6 @@ The goal is not to build a production-ready language, but to study and experimen
   - Converter for units of measurement
   - ...
 
-### Planned features
-
-- Ideas for possible further features are constantly emerging :)
 
 ## Examples
 > [!WARNING]  
