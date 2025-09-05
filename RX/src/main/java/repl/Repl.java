@@ -89,6 +89,7 @@ public class Repl {
                 testMode = !testMode;
                 loader = new ModuleLoader(Path.of("modules/"), testMode);
                 System.out.println("Test mode set to " + (testMode ? "on" : "off") + "\n");
+                break;
             default:
                 System.out.println("Unknown command: " + input);
                 printHelp();

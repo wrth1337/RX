@@ -1,0 +1,138 @@
+// === Lambda Calculus Module (de Bruijn, normal-order evaluator) ===
+//
+// Representation:
+//   V(n)  : variable (de Bruijn index, 0 = nearest binder)
+//   L(t)  : lambda abstraction
+//   A(t1,t2): application
+//   C(name): uninterpreted constant (used for bridging/decoding)
+//
+// Strategy:
+//   - Normal-order (leftmost-outermost), weak head normal form
+//   - Capture-avoiding substitution via shift/subst
+//
+// Notes:
+//   - Constructors are idempotent (same pattern as Prelude's Cons/Nil).
+//   - Decoders for Church numerals/booleans are provided to assert with native RX values.
+
+// --- Data Constructors (idempotent) ---
+def V(k) = V(k)
+def L(t) = L(t)
+def A(t1, t2) = A(t1, t2)
+def C(name) = C(name)
+
+// --- shift: shift indices by d for free variables >= cutoff c ---
+def shift(V(k), d, c) = if(k >= c, V(k + d), V(k))
+def shift(L(t), d, c) = L(shift(t, d, c + 1))
+def shift(A(t1, t2), d, c) = A(shift(t1, d, c), shift(t2, d, c))
+def shift(C(name), d, c) = C(name)
+
+// --- subst: [j ↦ s]t (replace variable j by term s) ---
+def subst(V(k), j, s) = if(k == j, s, V(k))
+def subst(L(t), j, s) = L(subst(t, j + 1, shift(s, 1, 0)))
+def subst(A(t1, t2), j, s) = A(subst(t1, j, s), subst(t2, j, s))
+def subst(C(name), j, s) = C(name)
+
+// --- Evaluator (normal-order, weak head normal form) ---
+def eval(V(k)) = V(k)
+def eval(C(name)) = C(name)
+def eval(L(t)) = L(t)
+def eval(A(t1, t2)) = evalApp(eval(t1), t2)
+
+// if function is a lambda: perform beta (no evaluation of argument beforehand)
+def evalApp(L(t12), v2) = eval(shift(subst(t12, 0, shift(v2, 1, 0)), 0-1, 0))
+// otherwise: reduce the argument position
+def evalApp(t1, t2) = A(t1, eval(t2))
+
+// --- Handy Combinators ---
+def I() = L(V(0)) // identity: λx.x
+
+// --- Church Booleans ---
+// TRUE  = λt.λf. t
+// FALSE = λt.λf. f
+def TRUE() = L(L(V(1)))
+def FALSE() = L(L(V(0)))
+
+// IF = λb.λt.λf. b t f
+def IF() = L(L(L(A(A(V(2), V(1)), V(0)))))
+
+// --- Church Numerals ---
+// ZERO = λs.λz. z
+def ZERO() = L(L(V(0)))
+
+// SUCC = λn.λs.λz. s (n s z)
+def SUCC() = L(L(L(A(V(1), A(A(V(2), V(1)), V(0))))))
+
+// Derived numerals
+def ONE()   = A(SUCC(), ZERO())
+def TWO()   = A(SUCC(), ONE())
+def THREE() = A(SUCC(), TWO())
+def FOUR()  = A(SUCC(), THREE())
+def FIVE()  = A(SUCC(), FOUR())
+
+// ADD = λm.λn.λs.λz. m s (n s z)
+def ADD() = L(L(L(L(A(A(V(3), V(1)), A(A(V(2), V(1)), V(0)))))))
+
+// MUL = λm.λn.λs.λz. m (n s) z
+def MUL() = L(L(L(L(A(A(V(3), A(V(2), V(1))), V(0))))))
+
+// --- Bridge to native RX values (for decoding/assertions) ---
+def SuccC() = C("Succ")
+def ZeroC() = C("Zero")
+def TrueC() = C("True")
+def FalseC() = C("False")
+
+// s-function for decoding numerals: s = λx. Succ(x)
+def sucFun() = L(A(C("Succ"), V(0)))
+
+// numeral to int: n s z  with s = sucFun, z = ZeroC; then count Succ wrappers
+def churchToInt(t) = countSucc(eval(A(A(t, sucFun()), ZeroC())))
+def countSucc(C("Zero")) = 0
+def countSucc(A(C("Succ"), tail)) = 1 + countSucc(tail)
+def countSucc(_) = 0-1 // non-numeral sentinel
+
+// boolean to RX-bool: b TrueC FalseC  -> decode to true/false
+def churchToBool(t) = toBool(eval(A(A(t, TrueC()), FalseC())))
+def toBool(C("True")) = true
+def toBool(C("False")) = false
+
+// pretty helper for interpreting constants back to RX strings
+def constToString(C(name)) = name
+
+// small arity helpers
+def APP2(f, x, y) = A(A(f, x), y)
+def APP3(f, x, y, z) = A(A(A(f, x), y), z)
+
+
+// === Unit Tests for Lambda Calculus Module ===
+import UnitTest
+
+// --- Numeral Basics ---
+UnitTest.assertEquals("ZERO decodes to 0", churchToInt(ZERO()), 0)
+UnitTest.assertEquals("ONE decodes to 1", churchToInt(ONE()), 1)
+UnitTest.assertEquals("FIVE decodes to 5", churchToInt(FIVE()), 5)
+
+// --- Successor ---
+UnitTest.assertEquals("SUCC FOUR = FIVE", churchToInt(A(SUCC(), FOUR())), 5)
+
+// --- Addition ---
+UnitTest.assertEquals("ADD(2,3) = 5",
+    churchToInt(APP2(ADD(), TWO(), THREE())), 5)
+
+// --- Multiplication ---
+UnitTest.assertEquals("MUL(3,3) = 9",
+    churchToInt(APP2(MUL(), THREE(), THREE())), 9)
+
+// --- Identity & Beta ---
+UnitTest.assertEquals("eval((λx.x) ZERO) reduces to ZERO (as 0)",
+    churchToInt(eval(A(I(), ZERO()))), 0)
+
+// --- Booleans ---
+UnitTest.assertTrue("TRUE decodes to true", churchToBool(TRUE()))
+UnitTest.assertFalse("FALSE decodes to false", churchToBool(FALSE()))
+
+// --- IF combinator ---
+UnitTest.assertEquals("IF TRUE then else -> then",
+    constToString(eval(APP3(IF(), TRUE(), C("then"), C("else")))), "then")
+
+UnitTest.assertEquals("IF FALSE then else -> else",
+    constToString(eval(APP3(IF(), FALSE(), C("then"), C("else")))), "else")
