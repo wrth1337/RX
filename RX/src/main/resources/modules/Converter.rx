@@ -1,0 +1,81 @@
+// === Units Module ===
+
+// --- Base factors for length (in meters) ---
+def metersPer("mm") = 0.001
+def metersPer("cm") = 0.01
+def metersPer("m") = 1.0
+def metersPer("km") = 1000.0
+def metersPer("inch") = 0.0254
+def metersPer("ft") = 0.3048
+def metersPer("yd") = 0.9144
+def metersPer("mi") = 1609.344
+
+// --- Length conversion ---
+def convertLength(value, from, to) = value * metersPer(from) / metersPer(to)
+
+// --- Convenience wrappers (simple tasks) ---
+def mToMm(x) = convertLength(x, "m", "mm")
+def mToCm(x) = convertLength(x, "m", "cm")
+def mToInch(x) = convertLength(x, "m", "inch")
+def mmToM(x) = convertLength(x, "mm", "m")
+def cmToM(x) = convertLength(x, "cm", "m")
+def inchToM(x) = convertLength(x, "inch", "m")
+def mToFt(x) = convertLength(x, "m", "ft")
+def ftToM(x) = convertLength(x, "ft", "m")
+
+// --- Derived dimensions: area and volume ---
+def sq(x) = x * x
+def cube(x) = x * x * x
+
+def convertArea(value, from, to) =
+value * sq(metersPer(from)) / sq(metersPer(to))
+
+def convertVolume(value, from, to) =
+value * cube(metersPer(from)) / cube(metersPer(to))
+
+// --- Time base factors (in seconds) ---
+def secondsPer("s") = 1.0
+def secondsPer("min") = 60.0
+def secondsPer("h") = 3600.0
+def secondsPer("day") = 86400.0
+
+// --- Rates (e.g., km/h -> m/s) ---
+// value in (numFrom/denFrom) to (numTo/denTo)
+def convertRate(value, numFrom, denFrom, numTo, denTo) =
+value * (metersPer(numFrom) / metersPer(numTo)) * (secondsPer(denTo) / secondsPer(denFrom))
+
+// --- Temperature conversions (affine) ---
+def convertTemp(v, "C", "K") = v + 273.15
+def convertTemp(v, "K", "C") = v - 273.15
+def convertTemp(v, "C", "F") = v * 9.0 / 5.0 + 32.0
+def convertTemp(v, "F", "C") = (v - 32.0) * 5.0 / 9.0
+def convertTemp(v, "K", "F") = convertTemp(convertTemp(v, "K", "C"), "C", "F")
+def convertTemp(v, "F", "K") = convertTemp(convertTemp(v, "F", "C"), "C", "K")
+def convertTemp(v, u, u) = v
+
+// === Unit Tests for Units Module ===
+import UnitTest
+import Math
+
+// --- Length basics ---
+UnitTest.assertEquals("1 m -> 1000 mm", convertLength(1, "m", "mm"), 1000.0)
+UnitTest.assertEquals("1.75 m -> 175 cm", convertLength(1.75, "m", "cm"), 175.0)
+UnitTest.assertTrue("1 m ≈ 39.37007874 inch", Math.abs(convertLength(1, "m", "inch") - 39.37007874) < 0.0001)
+UnitTest.assertTrue("1 ft ≈ 0.3048 m", Math.abs(convertLength(1, "ft", "m") - 0.3048) < 0.0000001)
+
+// --- Convenience wrappers ---
+UnitTest.assertEquals("mToMm(2) = 2000", mToMm(2), 2000.0)
+UnitTest.assertTrue("mToInch(2) ≈ 78.74015748", Math.abs(mToInch(2) - 78.74015748) < 0.0001)
+
+// --- Area and Volume ---
+UnitTest.assertEquals("2 m^2 -> cm^2 = 20000", convertArea(2, "m", "cm"), 20000.0)
+UnitTest.assertTrue("1 m^3 -> cm^3 = 1000000", convertVolume(1, "m", "cm")>999999.9999)
+
+// --- Rates ---
+UnitTest.assertEquals("36 km/h -> 10 m/s", convertRate(36, "km", "h", "m", "s"), 10.0)
+UnitTest.assertTrue("10 m/s -> 36 km/h", Math.abs(convertRate(10, "m", "s", "km", "h") - 36.0) < 0.0000001)
+
+// --- Temperature ---
+UnitTest.assertEquals("0 C -> 32 F", convertTemp(0, "C", "F"), 32.0)
+UnitTest.assertTrue("273.15 K -> 0 C", Math.abs(convertTemp(273.15, "K", "C") - 0.0) < 0.0000001)
+UnitTest.assertTrue("212 F -> 373.15 K", Math.abs(convertTemp(212.0, "F", "K") - 373.15) < 0.0001)
