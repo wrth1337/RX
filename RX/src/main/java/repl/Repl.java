@@ -202,7 +202,7 @@ public class Repl {
     }
 
     private void loadImport(Import imp) {
-        if (namespaces.containsKey(imp.module())) {
+        if (namespaces.get("Main").imports().stream().map(Import::module).toList().contains(imp.module())) {
             System.out.println("Module already imported: " + highlight(imp.toString()));
             return;
         }
