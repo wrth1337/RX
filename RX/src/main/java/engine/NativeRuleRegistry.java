@@ -23,7 +23,16 @@ public class NativeRuleRegistry {
 
         if (fn.equals("charAt") && args.size() == 2 &&
                 args.get(0) instanceof StringLiteral s && args.get(1) instanceof IntLiteral i) {
-            return Optional.of(new CharLiteral(s.value().charAt(i.value())));
+
+            String str = s.value();
+            int idx = i.value();
+
+            if (idx < 0 || idx >= str.length()) {
+                throw new RuntimeException(
+                        "Native charAt: index " + idx + " out of bounds (length " + str.length() + ")");
+            }
+
+            return Optional.of(new CharLiteral(str.charAt(idx)));
         }
 
         if (fn.equals("explode") && args.size() == 1 && args.get(0) instanceof StringLiteral s) {
